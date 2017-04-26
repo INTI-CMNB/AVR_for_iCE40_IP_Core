@@ -1,0 +1,25 @@
+[*]
+[*] GTKWave Analyzer v3.3.62 (w)1999-2014 BSI
+[*] Mon Apr 24 17:23:04 2017
+[*]
+[dumpfile] "/home/salvador/0Data/FPGA/fpgacores/AVR/AVR_iCE40/Work/alu_tb.ghw"
+[dumpfile_mtime] "Mon Apr 24 17:09:18 2017"
+[dumpfile_size] 2592592
+[savefile] "/home/salvador/0Data/FPGA/fpgacores/AVR/AVR_iCE40/testbench/alu_tb.sav"
+[timestart] 0
+[size] 1724 856
+[pos] -1 168
+*-27.298378 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.alu_tb.
+[sst_width] 230
+[signals_width] 126
+[sst_expanded] 1
+[sst_vpaned_height] 231
+@28
+top.alu_tb.clk
+top.alu_tb.reset
+@22
+#{top.alu_tb.opcode[15:0]} top.alu_tb.opcode[15] top.alu_tb.opcode[14] top.alu_tb.opcode[13] top.alu_tb.opcode[12] top.alu_tb.opcode[11] top.alu_tb.opcode[10] top.alu_tb.opcode[9] top.alu_tb.opcode[8] top.alu_tb.opcode[7] top.alu_tb.opcode[6] top.alu_tb.opcode[5] top.alu_tb.opcode[4] top.alu_tb.opcode[3] top.alu_tb.opcode[2] top.alu_tb.opcode[1] top.alu_tb.opcode[0]
+[pattern_trace] 1
+[pattern_trace] 0

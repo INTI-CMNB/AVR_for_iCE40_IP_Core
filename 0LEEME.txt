@@ -1,0 +1,40 @@
+AVR iCE40
+---------
+Autor: Salvador E. Tropea
+
+Esta es una reimplementación del AVR pensado para la arquitectura de las iCE40.
+La principal limitación es que el uso de RAM distribuida en cantidades masivas
+es prohibitivo en las iCE40. El banco de registros del AVR es una memoria
+asincrónica, en FPGAs de Xilinx esto se implementa como RAM distribuida usando
+los bits de las LUTs como bits de memoria. Esto no es posible en las iCE40 y
+por lo tanto recurre a usar F/Fs. Esos F/Fs usan una decodificación
+implementada con LUTs y los recursos insumidos para el banco de registros
+(32x8=256 bits, multipuerto) son enormes.
+Para evitar esto se planteó un banco de registros sincrónico. Esto obliga a que
+la mayor parte de las instrucciones deban esperar al registro leído. Por lo
+tanto casi todas las instrucciones necesitan más ciclos de reloj.
+Por otro lado la RAM embebida de la iCE40 es "half dual port", es decir que los
+bloques tienen dos puertos, pero uno es de lectura y el otro de escritura. Esto
+complica la implementación del banco de registros que necesita una memoria
+donde uno de los puertos sea R/W y el otro R. Para empeorar la cosa si queremos
+tener los registros X, Y y Z en BRAMs (y no en F/Fs) se necesita que uno de los
+puertos trabaje en 8/16 bits. Todo esto está muy lejos de la funcionalidad de
+los bloques de la iCE40 por lo que se implementó usando varios bloques.
+Esta reimplementación sólo soporta el set de instrucciones v2.0 y v2.5. Habría
+que evaluar si vale la pena agregar el call/jmp del v3.0. Las multiplicaciones
+del v4.0 probablemente sean una mala idea ya que las iCE40 no poseen
+multiplicadores en hardware.
+
+Este código fue originalmente desarrollado en el repositorio:
+
+cvs://fpgacores/AVR/OC_AVR_Core/
+
+De manera tal de ir aprovechando las partes ya funcionales de ese core.
+Sin embargo terminó usando pocas cosas y complicando entender que era de cada
+versión. Por eso decidí moverlo a:
+
+cvs://fpgacores/AVR/AVR_iCE40/
+
+Algunos pocos fuentes son idénticos a los que usa el otro core, pero son
+minoría.
+

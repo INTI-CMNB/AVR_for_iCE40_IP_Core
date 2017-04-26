@@ -1,0 +1,19 @@
+# xil_tools group 1
+avr
+Work/avr_pkg.vhdl
+core/io_reg_file.vhdl
+core/reg_file.vhdl
+core/decoder.vhdl
+core/alu.vhdl
+core/cpu.vhdl
+core/core.vhdl
+Work/dev_pkg.vhdl
+devices/portx.vhdl
+devices/wb_ctrl.vhdl
+devices/irq.vhdl
+devices/spi.vhdl
+Work/mem_pkg.vhdl
+memory/dm_s.vhdl
+Work/micros_pkg.vhdl
+micros/attX5.vhdl
+

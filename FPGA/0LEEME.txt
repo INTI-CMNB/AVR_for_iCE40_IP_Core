@@ -1,0 +1,1 @@
+Un ejemplo de aplicación es el core "Lattuino"
