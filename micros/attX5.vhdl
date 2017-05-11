@@ -68,6 +68,7 @@ entity ATtX5 is
       ENA_IRQ_CTRL  : boolean:=false;  -- Include the ext. irq. control
       ENA_DEBUG     : boolean:=false;  -- Enable debug interface
       ENA_SPM       : boolean:=false;  -- Implement the SPM instruction (AVR4)
+      ENA_AVR25     : boolean:=true;   -- Enable AVR 2.5 instructions
       PORTB_SIZE    : positive:=5;     -- PORTB implemented bits
       PORTC_SIZE    : positive:=6;     -- PORTC implemented bits
       PORTD_SIZE    : positive:=8;     -- PORTD implemented bits
@@ -154,7 +155,7 @@ begin
          RF_ENA_RST => RF_ENA_RST, ID_W => ID_W, IRQ_LINES => IRQ_NUM,
          ENA_RAMPZ => false, SP_W => ADR_W, RAM_ADR_W => ADR_W, ENA_AVR3 => false,
          ENA_DEBUG => ENA_DEBUG, ENA_SPM => ENA_SPM, RESET_JUMP => RESET_JUMP,
-         ENA_AVR4 => false, ENA_AVR25 => true)
+         ENA_AVR4 => false, ENA_AVR25 => ENA_AVR25)
       port map(
          --Clock and reset
          clk_i => clk_i, ena_i => cpu_ena, rst_i => rst_i,
@@ -207,7 +208,7 @@ begin
    -- 3 IRQ Ctrl
    -- 4 PortD for experimental use
    -- 5 SPI
-   
+
    -----------
    -- PortB --
    -----------
