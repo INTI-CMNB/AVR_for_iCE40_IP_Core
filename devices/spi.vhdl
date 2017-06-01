@@ -51,8 +51,8 @@ use avr.Constants.all;
 
 entity SPI_Dev is
    generic(
-      ENABLE      : boolean:=true;
-      WCOL_ENABLE : boolean:=false);
+      ENABLE      : std_logic:='1';
+      WCOL_ENABLE : std_logic:='0');
    port(
       -- AVR Control
       clk_i      : in   std_logic;
@@ -112,9 +112,9 @@ architecture RTL of SPI_Dev is
    alias  spe       : std_logic is spc_r(6); -- SPI Enable
    signal wcol_r    : std_logic:='0'; -- Write Collision
 begin
-   spcr_sel <= '1' when adr_i=SPCR_ADDRESS and ENABLE else '0';
-   spsr_sel <= '1' when adr_i=SPSR_ADDRESS and ENABLE else '0';
-   spdr_sel <= '1' when adr_i=SPDR_ADDRESS and ENABLE else '0';
+   spcr_sel <= '1' when adr_i=SPCR_ADDRESS and ENABLE='1' else '0';
+   spsr_sel <= '1' when adr_i=SPSR_ADDRESS and ENABLE='1' else '0';
+   spdr_sel <= '1' when adr_i=SPDR_ADDRESS and ENABLE='1' else '0';
 
    selected_o <= (spcr_sel or spsr_sel or spdr_sel) and (re_i or we_i);
 
@@ -130,7 +130,7 @@ begin
    -- Start Tx
    start <= spdr_sel and we_i and ena_i;
 
-   SPI_Core : entity SPI.SPI_Master
+   SPI_Core : SPI_Master
       generic map(DATA_W => 8)
       port map(
          -- System
@@ -163,7 +163,7 @@ begin
                end if;
             end if;
             -- WCOL flag
-            if WCOL_ENABLE then
+            if WCOL_ENABLE='1' then
                -- Write Collision
                if start='1' and busy='1' then
                   wcol_r <= '1';
