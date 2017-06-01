@@ -41,6 +41,8 @@
 
 ***********************************************************************/
 
+`include "../core/avr_constants.v"
+
 module SPI_Dev
   #(
     parameter ENABLE=1,
@@ -103,11 +105,9 @@ reg  [4:0] cnt_r=0;
 `define spe  spc_r[6]
 reg  wcol_r=0; // Write Collision
 
-`include "../core/avr_constants.v"
-
-assign spcr_sel=adr_i==SPCR_ADDRESS && ENABLE;
-assign spsr_sel=adr_i==SPSR_ADDRESS && ENABLE;
-assign spdr_sel=adr_i==SPDR_ADDRESS && ENABLE;
+assign spcr_sel=adr_i==`SPCR_ADDRESS && ENABLE;
+assign spsr_sel=adr_i==`SPSR_ADDRESS && ENABLE;
+assign spdr_sel=adr_i==`SPDR_ADDRESS && ENABLE;
 
 assign selected_o=(spcr_sel | spsr_sel | spdr_sel) & (re_i | we_i);
 

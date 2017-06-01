@@ -40,93 +40,93 @@
 ***********************************************************************/
 
 // I/O Register File (Internal)
-localparam [5:0] RAMPZ_ADDRESS  =6'h3B;
-localparam [5:0] SPL_ADDRESS    =6'h3D;
-localparam [5:0] SPH_ADDRESS    =6'h3E;
-localparam [5:0] SREG_ADDRESS   =6'h3F;
+`define RAMPZ_ADDRESS  6'h3B
+`define SPL_ADDRESS    6'h3D
+`define SPH_ADDRESS    6'h3E
+`define SREG_ADDRESS   6'h3F
 // Interrupt Control
 // ATmega8, ATtiny22
-localparam [5:0] GICR_ADDRESS   =6'h3B;
-localparam [5:0] GIFR_ADDRESS   =6'h3A;
+`define GICR_ADDRESS   6'h3B
+`define GIFR_ADDRESS   6'h3A
 // ATmega103
-localparam [5:0] EIMSK_ADDRESS  =6'h39;
-localparam [5:0] EIFR_ADDRESS   =6'h38;
-localparam [5:0] EICR_ADDRESS   =6'h3A;
+`define EIMSK_ADDRESS  6'h39
+`define EIFR_ADDRESS   6'h38
+`define EICR_ADDRESS   6'h3A
 // UART
-localparam [5:0] UDR_ADDRESS    =6'h0C;
-localparam [5:0] UBRR_ADDRESS   =6'h09;
-localparam [5:0] USR_ADDRESS    =6'h0B;
-localparam [5:0] UCR_ADDRESS    =6'h0A;
+`define UDR_ADDRESS    6'h0C
+`define UBRR_ADDRESS   6'h09
+`define USR_ADDRESS    6'h0B
+`define UCR_ADDRESS    6'h0A
 // Timer/Counter
-localparam [5:0] TCCR0_ADDRESS  =6'h33;
-localparam [5:0] TCCR1A_ADDRESS =6'h2F;
-localparam [5:0] TCCR1B_ADDRESS =6'h2E;
-localparam [5:0] TCCR2_ADDRESS  =6'h25;
-localparam [5:0] ASSR_ADDRESS   =6'h30;
-localparam [5:0] TIMSK_ADDRESS  =6'h37;
-localparam [5:0] TIFR_ADDRESS   =6'h36;
-localparam [5:0] TCNT0_ADDRESS  =6'h32;
-localparam [5:0] TCNT2_ADDRESS  =6'h24;
-localparam [5:0] OCR0_ADDRESS   =6'h31;
-localparam [5:0] OCR2_ADDRESS   =6'h23;
-localparam [5:0] TCNT1H_ADDRESS =6'h2D;
-localparam [5:0] TCNT1L_ADDRESS =6'h2C;
-localparam [5:0] OCR1AH_ADDRESS =6'h2B;
-localparam [5:0] OCR1AL_ADDRESS =6'h2A;
-localparam [5:0] OCR1BH_ADDRESS =6'h29;
-localparam [5:0] OCR1BL_ADDRESS =6'h28;
-localparam [5:0] ICR1AH_ADDRESS =6'h27;
-localparam [5:0] ICR1AL_ADDRESS =6'h26;
+`define TCCR0_ADDRESS  6'h33
+`define TCCR1A_ADDRESS 6'h2F
+`define TCCR1B_ADDRESS 6'h2E
+`define TCCR2_ADDRESS  6'h25
+`define ASSR_ADDRESS   6'h30
+`define TIMSK_ADDRESS  6'h37
+`define TIFR_ADDRESS   6'h36
+`define TCNT0_ADDRESS  6'h32
+`define TCNT2_ADDRESS  6'h24
+`define OCR0_ADDRESS   6'h31
+`define OCR2_ADDRESS   6'h23
+`define TCNT1H_ADDRESS 6'h2D
+`define TCNT1L_ADDRESS 6'h2C
+`define OCR1AH_ADDRESS 6'h2B
+`define OCR1AL_ADDRESS 6'h2A
+`define OCR1BH_ADDRESS 6'h29
+`define OCR1BL_ADDRESS 6'h28
+`define ICR1AH_ADDRESS 6'h27
+`define ICR1AL_ADDRESS 6'h26
 // Service module
-localparam [5:0] MCUCR_ADDRESS  =6'h35;
-localparam [5:0] MCUSR_ADDRESS  =6'h34;
-localparam [5:0] XDIV_ADDRESS   =6'h3C;
+`define MCUCR_ADDRESS  6'h35
+`define MCUSR_ADDRESS  6'h34
+`define XDIV_ADDRESS   6'h3C
 // EEPROM 
-localparam [5:0] EEARH_ADDRESS  =6'h1F;
-localparam [5:0] EEARL_ADDRESS  =6'h1E;
-localparam [5:0] EEDR_ADDRESS   =6'h1D;
-localparam [5:0] EECR_ADDRESS   =6'h1C;
+`define EEARH_ADDRESS  6'h1F
+`define EEARL_ADDRESS  6'h1E
+`define EEDR_ADDRESS   6'h1D
+`define EECR_ADDRESS   6'h1C
 // WISHBONE extension, added by SET.
 // Uses the EEPROM space.
-localparam [5:0] WB_ADDRESS     =6'h1F;
-localparam [5:0] WB_DATA        =6'h1E;
+`define WB_ADDRESS     6'h1F
+`define WB_DATA        6'h1E
 // WISHBONE extension, added by David Caruso.
 // Uses the ADC space, internal wishbone for internal peripherals
-localparam [5:0] WB_DATA_INT    =6'h05;
+`define WB_DATA_INT    6'h05
 // SPI
-localparam [5:0] SPCR_ADDRESS   =6'h0D;
-localparam [5:0] SPSR_ADDRESS   =6'h0E;
-localparam [5:0] SPDR_ADDRESS   =6'h0F;
+`define SPCR_ADDRESS   6'h0D
+`define SPSR_ADDRESS   6'h0E
+`define SPDR_ADDRESS   6'h0F
 // PORTA
-localparam [5:0] PORTA_ADDRESS  =6'h1B;
-localparam [5:0] DDRA_ADDRESS   =6'h1A;
-localparam [5:0] PINA_ADDRESS   =6'h19;
+`define PORTA_ADDRESS  6'h1B
+`define DDRA_ADDRESS   6'h1A
+`define PINA_ADDRESS   6'h19
 // PORTB
-localparam [5:0] PORTB_ADDRESS  =6'h18;
-localparam [5:0] DDRB_ADDRESS   =6'h17;
-localparam [5:0] PINB_ADDRESS   =6'h16;
+`define PORTB_ADDRESS  6'h18
+`define DDRB_ADDRESS   6'h17
+`define PINB_ADDRESS   6'h16
 // PORTC
-localparam [5:0] PORTC_ADDRESS  =6'h15;
-localparam [5:0] DDRC_ADDRESS   =6'h14;
-localparam [5:0] PINC_ADDRESS   =6'h13;
+`define PORTC_ADDRESS  6'h15
+`define DDRC_ADDRESS   6'h14
+`define PINC_ADDRESS   6'h13
 // PORTD
-localparam [5:0] PORTD_ADDRESS  =6'h12;
-localparam [5:0] DDRD_ADDRESS   =6'h11;
-localparam [5:0] PIND_ADDRESS   =6'h10;
+`define PORTD_ADDRESS  6'h12
+`define DDRD_ADDRESS   6'h11
+`define PIND_ADDRESS   6'h10
 // PORTE
-localparam [5:0] PORTE_ADDRESS  =6'h03;
-localparam [5:0] DDRE_ADDRESS   =6'h02;
-localparam [5:0] PINE_ADDRESS   =6'h01;
+`define PORTE_ADDRESS  6'h03
+`define DDRE_ADDRESS   6'h02
+`define PINE_ADDRESS   6'h01
 // PORTF (Input only)
-localparam [5:0] PINF_ADDRESS   =6'h00;
+`define PINF_ADDRESS   6'h00
 // Analog to digital converter
-localparam [5:0] ADCL_ADDRESS   =6'h04;
-localparam [5:0] ADCH_ADDRESS   =6'h05;
-localparam [5:0] ADCSR_ADDRESS  =6'h06;
-localparam [5:0] ADMUX_ADDRESS  =6'h07;
+`define ADCL_ADDRESS   6'h04
+`define ADCH_ADDRESS   6'h05
+`define ADCSR_ADDRESS  6'h06
+`define ADMUX_ADDRESS  6'h07
 // Analog comparator
-localparam [5:0] ACSR_ADDRESS   =6'h08;
+`define ACSR_ADDRESS   6'h08
 // Watchdog
-localparam [5:0] WDTCR_ADDRESS  =6'h21;
+`define WDTCR_ADDRESS  6'h21
 
 
