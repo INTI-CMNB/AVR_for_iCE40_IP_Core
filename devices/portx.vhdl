@@ -49,10 +49,10 @@ use avr.Constants.all;
 
 entity IOPort is
    generic(
-      NUMBER      : natural;         -- A=0, B=1, etc.
-      ENA_OUT     : boolean:=true;   -- Enable outputs
-      ENA_IN      : boolean:=true;   -- Enable inputs
-      BITS        : positive:=8);    -- How many bits are implemented
+      NUMBER      : natural:=0;     -- A=0, B=1, etc.
+      ENA_OUT     : std_logic:='1'; -- Enable outputs
+      ENA_IN      : std_logic:='1'; -- Enable inputs
+      BITS        : positive:=8);   -- How many bits are implemented
    port(
       -- AVR Control
       clk_i      : in   std_logic;
@@ -80,9 +80,9 @@ architecture RTL of IOPort is
    signal dir_sel  : std_logic;
    signal inp_sel  : std_logic;
 begin
-   data_sel <= '1' when adr_i=PPORT_TABLE(NUMBER).data and ENA_OUT else '0';
-   dir_sel  <= '1' when adr_i=PPORT_TABLE(NUMBER).ddr and ENA_OUT and ENA_IN else '0';
-   inp_sel  <= '1' when adr_i=PPORT_TABLE(NUMBER).inp and ENA_IN else '0';
+   data_sel <= '1' when adr_i=PPORT_TABLE(NUMBER).data and ENA_OUT='1' else '0';
+   dir_sel  <= '1' when adr_i=PPORT_TABLE(NUMBER).ddr and ENA_OUT='1' and ENA_IN='1' else '0';
+   inp_sel  <= '1' when adr_i=PPORT_TABLE(NUMBER).inp and ENA_IN='1' else '0';
 
    selected_o <= (data_sel or dir_sel or inp_sel) and re_i;
 
@@ -126,7 +126,7 @@ begin
 
    -- Bidirectional ports
    is_in_out:
-   if ENA_OUT and ENA_IN generate
+   if ENA_OUT='1' and ENA_IN='1' generate
       do_hi_z:
       for i in port_o'range generate
           port_o(i) <= data_r(i) when ddr_r(i)='1' else 'Z';
@@ -135,13 +135,13 @@ begin
 
    -- Output ports
    is_out:
-   if ENA_OUT and not(ENA_IN) generate
+   if ENA_OUT='1' and ENA_IN='0' generate
       port_o <= data_r;
    end generate is_out;
 
    -- Input ports
    is_in:
-   if not(ENA_OUT) and ENA_IN generate
+   if ENA_OUT='0' and ENA_IN='1' generate
       port_o <= (others => 'Z');
    end generate is_in;
 end architecture RTL; -- Entity: IOPort
