@@ -50,10 +50,10 @@ use avr.Constants.all;
 package Devices is
    component IOPort is
       generic(
-         NUMBER      : natural;         -- A=0, B=1, etc.
-         ENA_OUT     : boolean:=true;   -- Enable outputs
-         ENA_IN      : boolean:=true;   -- Enable inputs
-         BITS        : positive:=8);    -- How many bits are implemented
+         NUMBER      : natural:=0;     -- A=0, B=1, etc.
+         ENA_OUT     : std_logic:='1'; -- Enable outputs
+         ENA_IN      : std_logic:='1'; -- Enable inputs
+         BITS        : positive:=8);   -- How many bits are implemented
       port(
          -- AVR Control
          clk_i      : in   std_logic;
@@ -98,7 +98,7 @@ package Devices is
 
    component IRQCtrl is
       generic(
-         ENABLE : boolean:=true);
+         ENABLE : std_logic:='1');
       port(
          -- AVR Control
          clk_i      : in   std_logic;
@@ -122,8 +122,8 @@ package Devices is
 
    component SPI_Dev is
       generic(
-         ENABLE      : boolean:=true;
-         WCOL_ENABLE : boolean:=false);
+         ENABLE      : std_logic:='1';
+         WCOL_ENABLE : std_logic:='0');
       port(
          -- AVR Control
          clk_i      : in   std_logic;
