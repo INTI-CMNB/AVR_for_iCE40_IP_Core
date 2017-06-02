@@ -54,10 +54,15 @@ use utils.Str.all;
 
 entity Tracer is
    port(
-      clk_i     : in  std_logic;
-      rst_i     : in  std_logic;
-      ena_i     : in  std_logic:='1';
-      dbg_i     : in  debug_o_t);
+      clk_i         : in  std_logic;
+      rst_i         : in  std_logic;
+      ena_i         : in  std_logic:='1';
+      dbg_exec_i    : in  std_logic;
+      dbg_stopped_i : in  std_logic;
+      dbg_is32_i    : in  std_logic;
+      dbg_pc_i      : in  unsigned(15 downto 0);
+      dbg_inst_i    : in  std_logic_vector(15 downto 0);
+      dbg_inst2_i   : in  std_logic_vector(15 downto 0));
 end entity Tracer;
 
 architecture Simulator of Tracer is
@@ -71,13 +76,13 @@ begin
             rst_r <= '1';
          else
             rst_r <= '0';
-            if rst_r='0' and dbg_i.exec='1' and ena_i='1' and dbg_i.stopped='0' then
-               if dbg_i.is32 then
-                  outwrite("0x"&hstr(dbg_i.pc)&" 0x"&hstr(dbg_i.inst)&" 0x"&hstr(dbg_i.inst2));
+            if rst_r='0' and dbg_exec_i='1' and ena_i='1' and dbg_stopped_i='0' then
+               if dbg_is32_i='1' then
+                  outwrite("0x"&hstr(dbg_pc_i)&" 0x"&hstr(dbg_inst_i)&" 0x"&hstr(dbg_inst2_i));
                else
-                  outwrite("0x"&hstr(dbg_i.pc)&" 0x"&hstr(dbg_i.inst));
+                  outwrite("0x"&hstr(dbg_pc_i)&" 0x"&hstr(dbg_inst_i));
                end if;
-            end if; -- rst_r='0' and dbg_i.exec='1' and ena_i='1'
+            end if; -- rst_r='0' and dbg_exec_i='1' and ena_i='1'
          end if; -- else rst_i='1'
       end if; -- rising_edge(clk_i)
    end process do_trace;

@@ -61,14 +61,14 @@ use avr.Types.all;
 entity CPU is
    generic(
       IRQ_ID_W   : positive:=2;     -- Width of the ID
-      ENA_AVR25  : boolean:=false;  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
+      ENA_AVR25  : std_logic:='0';  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
       ENA_AVR3   : boolean:=false;  -- Enable AVR3 instructions
       ENA_AVR4   : boolean:=false;  -- Enable AVR4 instructions
-      ENA_SPM    : boolean:=false;  -- AVR4 Store Program Memory
+      ENA_SPM    : std_logic:='0';  -- AVR4 Store Program Memory
       SP_W       : integer range 8 to 16:=8; -- SP register width
       RAM_ADR_W  : integer range 8 to 16:=8; -- RAM address width
       RESET_JUMP : natural:=0;      -- Address of the reset vector
-      ENA_DEBUG  : boolean:=false;  -- Enable debug interface
+      ENA_DEBUG  : std_logic:='0';  -- Enable debug interface
       IRQ_LINES  : positive:=2);    -- Number of IRQ lines
    port(
       -- Clock and reset
@@ -109,8 +109,20 @@ entity CPU is
       --Watchdog
       wdr_o           : out std_logic;
       -- Debug
-      dbg_i           : in  debug_i_t;
-      dbg_o           : out debug_o_t);
+      dbg_stop_i      : in  std_logic; -- Stop request
+      dbg_pc_o        : out unsigned(15 downto 0);
+      dbg_inst_o      : out std_logic_vector(15 downto 0);
+      dbg_inst2_o     : out std_logic_vector(15 downto 0);
+      dbg_exec_o      : out std_logic;
+      dbg_is32_o      : out std_logic;
+      dbg_stopped_o   : out std_logic; -- CPU is stopped
+      -- Debug used for Test_ALU_1_TB
+      dbg_rf_fake_i   : in  std_logic;
+      dbg_rr_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_o   : out std_logic_vector(7 downto 0);
+      dbg_rd_we_o     : out std_logic;
+      dbg_cyc_last_o  : out std_logic); -- Last cycle in the instruction
 end entity CPU;
 
 architecture RTL of CPU is
@@ -486,7 +498,7 @@ begin
    reg_z_b16 <= rampz_i(0) and idc.elpm_r when ENA_AVR3 else '0';
    -- SPM's inst_o
    inst_o_implemented:
-   if ENA_SPM generate
+   if ENA_SPM='1' generate
       do_inst_o:
       process (clk_i)
       begin
@@ -502,7 +514,7 @@ begin
    end generate inst_o_implemented;
 
    inst_o_not_implemented:
-   if not(ENA_SPM) generate
+   if ENA_SPM='0' generate
       inst_o <= (others => '0');
       pgm_we_o <= '0';
    end generate inst_o_not_implemented;
@@ -523,7 +535,7 @@ begin
       end if;
    end process do_ir;
    inst_cur <= inst_stop when cyc_1_r='1' else inst_r;
-   dbg_o.inst <= inst_cur;
+   dbg_inst_o <= inst_cur;
 
    ----------------------------------------------------------------------------
    -- Instruction Decoder
@@ -667,7 +679,7 @@ begin
                          cyc_2_std_next   or cyc_2_lpm_next   or cyc_3_lpm_next or
                          cyc_2_spm_next   or cyc_3_spm_next or
                          cyc_2_irq_next   or cyc_2_ldd_next);
-   dbg_o.cyc_last   <= cyc_1_next;
+   dbg_cyc_last_o   <= cyc_1_next;
    -- Indicates the instruction finished, but PC changed and we need to wait for a fetch
    cyc_fetch_next   <= cyc_2_brbx_next or -- BRBC/BRBS w/branch
                        cyc_2_ijmp_r or -- IJMP
@@ -720,8 +732,8 @@ begin
    cyc_2_bst_next   <= cyc_1_r and idc.bst; -- BST
    cyc_2_lpm_next   <= cyc_1_r and idc.lpm; -- LPM
    cyc_3_lpm_next   <= cyc_2_lpm_r;
-   cyc_2_spm_next   <= cyc_1_r and idc.spm when ENA_SPM else '0'; -- SPM
-   cyc_3_spm_next   <= cyc_2_spm_r when ENA_SPM else '0';
+   cyc_2_spm_next   <= cyc_1_r and idc.spm when ENA_SPM='1' else '0'; -- SPM
+   cyc_3_spm_next   <= cyc_2_spm_r when ENA_SPM='1' else '0';
    cyc_1_bc_bs      <= idc.bc_bs and cyc_1_r; -- BSET & BCLR
    cyc_1_bclr       <= cyc_1_bc_bs and idc.bclr; -- BCLR
    cyc_1_bset       <= cyc_1_bc_bs and not(idc.bclr); -- BSET
@@ -806,8 +818,8 @@ begin
          rd_we_i => rd_we, rd16_we_i => rd16_we, rd16_i => rd16_write,
          rd16_o => rd16_read, rr_adr_i => rr_adr, rr_o => rr_read_aux);
    -- Data from RF, can be faked from the debug unit
-   rd_read <= rd_read_aux when not(dbg_i.rf_fake) else dbg_i.rd_data;
-   rr_read <= rr_read_aux when not(dbg_i.rf_fake) else dbg_i.rr_data;
+   rd_read <= rd_read_aux when dbg_rf_fake_i='0' else dbg_rd_data_i;
+   rr_read <= rr_read_aux when dbg_rf_fake_i='0' else dbg_rr_data_i;
    ---------------------
    -- Rd data to write -
    ---------------------
@@ -863,7 +875,7 @@ begin
    -- Address high xxIW reg
    do_adr_iw1 <= cyc_3_xxiw_r or cyc_4_xxiw_r;    -- ADIW/SBIW Rd,k (3/4 R/W Rd+1)
    -- Address R0
-   lpm_r0     <= '1' when not(ENA_AVR25 or ENA_AVR4) or -- No Rd or
+   lpm_r0     <= '1' when not(ENA_AVR25='1' or ENA_AVR4) or -- No Rd or
                           inst_cur(2)='0' else '0';     -- Simple version
    do_adr_r0  <= (cyc_3_lpm_r and lpm_r0) or -- LPM (3 Write R0)
                  cyc_2_spm_next; -- SPM (1 Read R1:R0)
@@ -893,7 +905,7 @@ begin
    -------------------
    -- Rd 16 bits WE --
    -------------------
-   lpm_inc <= '1' when inst_cur(0)='1' and (ENA_AVR25 or ENA_AVR4) else '0';
+   lpm_inc <= '1' when inst_cur(0)='1' and (ENA_AVR25='1' or ENA_AVR4) else '0';
    rd16_we <= (cyc_2_ld_r and do_upd_pointer) or -- LD -R/R+
                cyc_3_st_r or                     -- ST -R/R+
                cyc_2_movw_r or                   -- MOVW
@@ -1244,31 +1256,31 @@ begin
    ---------------------
    -- For 32 bits instructions we wait until we have the second part fetched
    do_debug_stuff:
-   if ENA_DEBUG generate
-      dbg_o.inst    <= inst_cur; -- Current instruction (under execution)
-      dbg_o.inst2   <= inst_i;   -- 2nd part of a 32 bits instruction
-      dbg_o.exec    <= '1' when ((cyc_1_r='1' and cyc_2_lds_next='0' and cyc_2_sts_next='0') or -- 16 bits instruction cycle 1
+   if ENA_DEBUG='1' generate
+      dbg_inst_o    <= inst_cur; -- Current instruction (under execution)
+      dbg_inst2_o   <= inst_i;   -- 2nd part of a 32 bits instruction
+      dbg_exec_o    <= '1' when ((cyc_1_r='1' and cyc_2_lds_next='0' and cyc_2_sts_next='0') or -- 16 bits instruction cycle 1
                                 cyc_2_lds_r='1' or cyc_2_sts_r='1') -- 32 bits instruction cycle 2
                                 and ena_i='1' else '0';
-      dbg_o.is32    <= cyc_2_lds_r='1' or cyc_2_sts_r='1';
-      dbg_o.stopped <= stopped;
-      dbg_o.rd_data <= std_logic_vector(alu_s);
-      dbg_o.rd_we   <= rd_we;
+      dbg_is32_o    <= cyc_2_lds_r or cyc_2_sts_r;
+      dbg_stopped_o <= stopped;
+      dbg_rd_data_o <= std_logic_vector(alu_s);
+      dbg_rd_we_o   <= rd_we;
 
       do_dbg_pc:
       process (clk_i)
       begin
          if rising_edge(clk_i) then
             if rst_i='1' then
-               dbg_o.pc <= (others => '0');
+               dbg_pc_o <= (others => '0');
             elsif cyc_1_next='1' then
-               dbg_o.pc <= pc;
+               dbg_pc_o <= pc;
             end if;
          end if;
       end process do_dbg_pc;
    end generate do_debug_stuff;
 
-   stopped <= '1' when ENA_DEBUG and dbg_i.stop='1' else '0';
+   stopped <= '1' when ENA_DEBUG='1' and dbg_stop_i='1' else '0';
    enabled <= ena_i and not(stopped);
 
    do_was_ena_r:

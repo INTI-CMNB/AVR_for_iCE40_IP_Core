@@ -47,55 +47,6 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 package Types is
-   -- Debug interface
-   type debug_o_t is
-   record
-      pc        : unsigned(15 downto 0);
-      inst      : std_logic_vector(15 downto 0);
-      inst2     : std_logic_vector(15 downto 0);
-      exec      : std_logic;
-      is32      : boolean;
-      stopped   : std_logic; -- CPU is stopped
-      sp        : unsigned(15 downto 0); -- Stack Pointer
-      sp_inc    : std_logic; -- Stack Pointer will increment
-      sp_we     : std_logic; -- Stack Pointer is being modified
-      -- Used to read memory
-      mem_data  : std_logic_vector(7 downto 0); -- Data from memory
-      io_data   : std_logic_vector(7 downto 0); -- Data from I/O
-      rf_data   : std_logic_vector(7 downto 0); -- Data from Registers File
-      -- Used for Watchpoints
-      mem_addr  : std_logic_vector(15 downto 0); -- Memory Address
-      mem_we    : std_logic; -- Memory Write Enable
-      mem_re    : std_logic; -- Memory Read Enable
-      -- Used for Test_ALU_1_TB
-      rd_data   : std_logic_vector(7 downto 0);
-      rd_we     : std_logic;
-      cyc_last  : std_logic; -- Last cycle in the instruction
-   end record;
-
-   type debug_i_t is
-   record
-      stop      : std_logic; -- Stop request
-      -- Used to read/write memory
-      mem_addr  : std_logic_vector(15 downto 0); -- Address, also RF and I/O
-      mem_data  : std_logic_vector(7 downto 0); -- Data also RF and I/O
-      mem_we    : std_logic; -- Memory Write Enable
-      mem_re    : std_logic; -- Memory Read Enable
-      io_we     : std_logic; -- I/O Write Enable
-      io_re     : std_logic; -- I/O Read Enable
-      rf_we     : std_logic; -- Registers File Write Enable
-      rf_re     : std_logic; -- Registers File Read Enable
-      -- Used for Test_ALU_1_TB
-      rf_fake   : boolean;
-      rr_data   : std_logic_vector(7 downto 0);
-      rd_data   : std_logic_vector(7 downto 0);
-   end record;
-
-   constant DEBUG_I_INIT : debug_i_t:=(stop => '0', mem_addr => (others => '0'),
-                                       mem_data => (others => '0'), rf_fake => false,
-                                       rr_data => (others => '0'), rd_data => (others => '0'),
-                                       others => '0');
-
    type pport_data_t is
    record
       data    : unsigned(5 downto 0); -- Data to output address

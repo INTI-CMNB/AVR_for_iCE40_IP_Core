@@ -47,55 +47,6 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 package Types is
-   -- Debug interface
-   type debug_o_t is
-   record
-      pc        : unsigned(15 downto 0);
-      inst      : std_logic_vector(15 downto 0);
-      inst2     : std_logic_vector(15 downto 0);
-      exec      : std_logic;
-      is32      : boolean;
-      stopped   : std_logic; -- CPU is stopped
-      sp        : unsigned(15 downto 0); -- Stack Pointer
-      sp_inc    : std_logic; -- Stack Pointer will increment
-      sp_we     : std_logic; -- Stack Pointer is being modified
-      -- Used to read memory
-      mem_data  : std_logic_vector(7 downto 0); -- Data from memory
-      io_data   : std_logic_vector(7 downto 0); -- Data from I/O
-      rf_data   : std_logic_vector(7 downto 0); -- Data from Registers File
-      -- Used for Watchpoints
-      mem_addr  : std_logic_vector(15 downto 0); -- Memory Address
-      mem_we    : std_logic; -- Memory Write Enable
-      mem_re    : std_logic; -- Memory Read Enable
-      -- Used for Test_ALU_1_TB
-      rd_data   : std_logic_vector(7 downto 0);
-      rd_we     : std_logic;
-      cyc_last  : std_logic; -- Last cycle in the instruction
-   end record;
-
-   type debug_i_t is
-   record
-      stop      : std_logic; -- Stop request
-      -- Used to read/write memory
-      mem_addr  : std_logic_vector(15 downto 0); -- Address, also RF and I/O
-      mem_data  : std_logic_vector(7 downto 0); -- Data also RF and I/O
-      mem_we    : std_logic; -- Memory Write Enable
-      mem_re    : std_logic; -- Memory Read Enable
-      io_we     : std_logic; -- I/O Write Enable
-      io_re     : std_logic; -- I/O Read Enable
-      rf_we     : std_logic; -- Registers File Write Enable
-      rf_re     : std_logic; -- Registers File Read Enable
-      -- Used for Test_ALU_1_TB
-      rf_fake   : boolean;
-      rr_data   : std_logic_vector(7 downto 0);
-      rd_data   : std_logic_vector(7 downto 0);
-   end record;
-
-   constant DEBUG_I_INIT : debug_i_t:=(stop => '0', mem_addr => (others => '0'),
-                                       mem_data => (others => '0'), rf_fake => false,
-                                       rr_data => (others => '0'), rd_data => (others => '0'),
-                                       others => '0');
-
    type pport_data_t is
    record
       data    : unsigned(5 downto 0); -- Data to output address
@@ -412,16 +363,15 @@ use avr.Constants.all;
 package Core is
    component AVRCore is
       generic(
-         RF_ENA_RST : boolean:=false; -- Reg. File Enable Reset
          SP_W       : integer range 8 to 16:=16; -- Stack pointer size
          RAM_ADR_W  : integer range 8 to 16:=16; -- RAM address width
          ENA_RAMPZ  : boolean:=false; -- RAMPZ enable
          ID_W       : positive:=5;    -- Width of the IRQ ID
-         ENA_AVR25  : boolean:=false; -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
+         ENA_AVR25  : std_logic:='0'; -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
          ENA_AVR3   : boolean:=true;  -- Enable AVR3 instructions
          ENA_AVR4   : boolean:=false; -- Enable AVR4 instructions
-         ENA_SPM    : boolean:=false; -- Enable SPM instructions
-         ENA_DEBUG  : boolean:=false; -- Enable debug interface
+         ENA_SPM    : std_logic:='0'; -- Enable SPM instructions
+         ENA_DEBUG  : std_logic:='0'; -- Enable debug interface
          RESET_JUMP : natural:=0;     -- Address of the reset vector
          IRQ_LINES  : positive:=23);  -- Number of IRQ lines
       port(
@@ -456,8 +406,20 @@ package Core is
          -- Watchdog Reset Instruction
          wdr_o        : out std_logic;
          -- Debug
-         dbg_o        : out debug_o_t;  -- Debug status
-         dbg_i        : in  debug_i_t); -- Debug control
+         dbg_stop_i      : in  std_logic; -- Stop request
+         dbg_pc_o        : out unsigned(15 downto 0);
+         dbg_inst_o      : out std_logic_vector(15 downto 0);
+         dbg_inst2_o     : out std_logic_vector(15 downto 0);
+         dbg_exec_o      : out std_logic;
+         dbg_is32_o      : out std_logic;
+         dbg_stopped_o   : out std_logic; -- CPU is stopped
+         -- Debug used for Test_ALU_1_TB
+         dbg_rf_fake_i   : in  std_logic;
+         dbg_rr_data_i   : in  std_logic_vector(7 downto 0);
+         dbg_rd_data_i   : in  std_logic_vector(7 downto 0);
+         dbg_rd_data_o   : out std_logic_vector(7 downto 0);
+         dbg_rd_we_o     : out std_logic;
+         dbg_cyc_last_o  : out std_logic); -- Last cycle in the instruction
    end component AVRCore;
 end package Core;
 

@@ -52,16 +52,15 @@ use avr.Types.all;
 
 entity AVRCore is
    generic(
-      RF_ENA_RST : boolean:=false; -- Reg. File Enable Reset
       SP_W       : integer range 8 to 16:=16; -- Stack pointer size
       RAM_ADR_W  : integer range 8 to 16:=16; -- RAM address width
       ENA_RAMPZ  : boolean:=false; -- RAMPZ enable
       ID_W       : positive:=5;    -- Width of the IRQ ID
-      ENA_AVR25  : boolean:=false; -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
+      ENA_AVR25  : std_logic:='0'; -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
       ENA_AVR3   : boolean:=true;  -- Enable AVR3 instructions
       ENA_AVR4   : boolean:=false; -- Enable AVR4 instructions
-      ENA_SPM    : boolean:=false; -- Enable SPM instructions
-      ENA_DEBUG  : boolean:=false; -- Enable debug interface
+      ENA_SPM    : std_logic:='0'; -- Enable SPM instructions
+      ENA_DEBUG  : std_logic:='0'; -- Enable debug interface
       RESET_JUMP : natural:=0;     -- Address of the reset vector
       IRQ_LINES  : positive:=23);  -- Number of IRQ lines
    port(
@@ -96,8 +95,20 @@ entity AVRCore is
       -- Watchdog Reset Instruction
       wdr_o        : out std_logic;
       -- Debug
-      dbg_o        : out debug_o_t;  -- Debug status
-      dbg_i        : in  debug_i_t); -- Debug control
+      dbg_stop_i      : in  std_logic; -- Stop request
+      dbg_pc_o        : out unsigned(15 downto 0);
+      dbg_inst_o      : out std_logic_vector(15 downto 0);
+      dbg_inst2_o     : out std_logic_vector(15 downto 0);
+      dbg_exec_o      : out std_logic;
+      dbg_is32_o      : out std_logic;
+      dbg_stopped_o   : out std_logic; -- CPU is stopped
+      -- Debug used for Test_ALU_1_TB
+      dbg_rf_fake_i   : in  std_logic;
+      dbg_rr_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_o   : out std_logic_vector(7 downto 0);
+      dbg_rd_we_o     : out std_logic;
+      dbg_cyc_last_o  : out std_logic); -- Last cycle in the instruction
 end entity AVRCore;
 
 architecture Struct of AVRCore is
@@ -165,8 +176,20 @@ begin
          sp_we_o      => sp_we,
          rampz_i      => rampz,
          -- Debug
-         dbg_i        => dbg_i,
-         dbg_o        => dbg_o);
+         dbg_stop_i     => dbg_stop_i,
+         dbg_pc_o       => dbg_pc_o,
+         dbg_inst_o     => dbg_inst_o,
+         dbg_inst2_o    => dbg_inst2_o,
+         dbg_exec_o     => dbg_exec_o,
+         dbg_is32_o     => dbg_is32_o,
+         dbg_stopped_o  => dbg_stopped_o,
+         -- Debug used for Test_ALU_1_TB
+         dbg_rf_fake_i  => dbg_rf_fake_i,
+         dbg_rr_data_i  => dbg_rr_data_i,
+         dbg_rd_data_i  => dbg_rd_data_i,
+         dbg_rd_data_o  => dbg_rd_data_o,
+         dbg_rd_we_o    => dbg_rd_we_o,
+         dbg_cyc_last_o => dbg_cyc_last_o);
    
    IORegs_Inst: IORegFile
       generic map(

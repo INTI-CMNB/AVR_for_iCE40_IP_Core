@@ -51,7 +51,7 @@ use avr.Types.all;
 
 entity Decoder is
    generic(
-      ENA_AVR25 : boolean:=false;  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
+      ENA_AVR25 : std_logic:='0';  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
       ENA_AVR3  : boolean:=false;  -- Enable AVR3 instructions
       ENA_AVR4  : boolean:=false); -- Enable AVR4 instructions
    port(
@@ -104,7 +104,7 @@ begin
                          --inst_i="1001010111101000" or -- LPM image
                          --inst_i="1001010111111000" or -- ELPM image
                          (inst_i(15 downto 10)&inst_i(3 downto 1)="100100010" and
-                             (ENA_AVR4 or ENA_AVR25)) -- LPM Rd,Z[+]
+                             (ENA_AVR4 or ENA_AVR25='1')) -- LPM Rd,Z[+]
                          else '0';
    idc_o.spm  <= '1' when inst_i="1001010111101000" else '0'; -- SPM 0x95E8 AV4
    idc_o.elpm_r <= inst_r_i(4); -- Extended LPM
@@ -222,7 +222,7 @@ begin
                             and ENA_AVR4 else '0';                              -- 000000111DDD1RRR
    -- AVR4 and AVR25(2.5)
    idc_o.movw   <= '1' when inst_i(15 downto 8)="00000001" and
-                            (ENA_AVR4 or ENA_AVR25) else '0'; -- 00000001DDDDRRRR
+                            (ENA_AVR4 or ENA_AVR25='1') else '0'; -- 00000001DDDDRRRR
    -- LPM Rd,Z decoding is in LPM decoding
    -- Most invalid opcodes are decoded as NOP
 end architecture RTL; -- Entity: Decoder

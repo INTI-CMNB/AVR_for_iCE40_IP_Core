@@ -15,5 +15,5 @@ devices/spi.v
 Work/mem_pkg.vhdl
 memory/dm_s.v
 Work/micros_pkg.vhdl
-micros/attX5.vhdl
+micros/attX5.v
 

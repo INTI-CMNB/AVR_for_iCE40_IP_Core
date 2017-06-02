@@ -26,7 +26,7 @@
 ------------------------------------------------------------------------------
 ----                                                                      ----
 ---- Design unit:      ATtX5(Struct) (Entity and architecture)            ----
----- File name:        attX5.vhd                                          ----
+---- File name:        attX5.vhdl                                         ----
 ---- Note:             None                                               ----
 ---- Limitations:      None known                                         ----
 ---- Errors:           None known                                         ----
@@ -60,32 +60,29 @@ use avr.Memory.all;
 
 entity ATtX5 is
    generic(
-      ENA_TC0       : boolean:=true;   -- Include the Timer/Counter 0
-      ENA_PORTB     : boolean:=true;   -- Include PortB
-      ENA_PORTC     : boolean:=false;  -- Include PortC (experimental)
-      ENA_PORTD     : boolean:=false;  -- Include PortD (experimental)
-      ENA_WB        : boolean:=true;   -- Include the WISHBONE bridge
+      ENA_PORTB     : std_logic:='1';  -- Include PortB
+      ENA_PORTC     : std_logic:='0';  -- Include PortC (experimental)
+      ENA_PORTD     : std_logic:='0';  -- Include PortD (experimental)
+      ENA_WB        : std_logic:='1';  -- Include the WISHBONE bridge
       ENA_IRQ_CTRL  : std_logic:='0';  -- Include the ext. irq. control
-      ENA_DEBUG     : boolean:=false;  -- Enable debug interface
-      ENA_SPM       : boolean:=false;  -- Implement the SPM instruction (AVR4)
-      ENA_AVR25     : boolean:=true;   -- Enable AVR 2.5 instructions
+      ENA_DEBUG     : std_logic:='0';  -- Enable debug interface
+      ENA_SPM       : std_logic:='0';  -- Implement the SPM instruction (AVR4)
+      ENA_AVR25     : std_logic:='1';  -- Enable AVR 2.5 instructions
       PORTB_SIZE    : positive:=5;     -- PORTB implemented bits
       PORTC_SIZE    : positive:=6;     -- PORTC implemented bits
       PORTD_SIZE    : positive:=8;     -- PORTD implemented bits
-      ENA_SPI       : boolean:=false;  -- Include SPI
-      RF_ENA_RST    : boolean:=false;  -- Register File Reset Enable
+      ENA_SPI       : std_logic:='0';  -- Include SPI
       RAM_ADDR_W    : positive:=8;     -- tn25: 7 45: 8 85: 9 (128 to 512 b)
       RESET_JUMP    : natural:=0);     -- Address of the reset vector
    port(
       clk_i      : in    std_logic;
       clk2x_i    : in    std_logic;
       rst_i      : in    std_logic;
-      ena_i      : in    std_logic:='1'; -- CPU clock enable
-      tmr_ena_i  : in    std_logic:='1'; -- T/C clock enable
+      ena_i      : in    std_logic; -- CPU clock enable
       -- Ports
-      portb_i    : in    std_logic_vector(PORTB_SIZE-1 downto 0):=(others => '0');
-      portc_i    : in    std_logic_vector(PORTC_SIZE-1 downto 0):=(others => '0');
-      portd_i    : in    std_logic_vector(PORTD_SIZE-1 downto 0):=(others => '0');
+      portb_i    : in    std_logic_vector(PORTB_SIZE-1 downto 0);
+      portc_i    : in    std_logic_vector(PORTC_SIZE-1 downto 0);
+      portd_i    : in    std_logic_vector(PORTD_SIZE-1 downto 0);
       portb_o    : out   std_logic_vector(PORTB_SIZE-1 downto 0);
       portc_o    : out   std_logic_vector(PORTC_SIZE-1 downto 0);
       portd_o    : out   std_logic_vector(PORTD_SIZE-1 downto 0);
@@ -95,25 +92,37 @@ entity ATtX5 is
       inst_o     : out   std_logic_vector(15 downto 0); -- PROM data
       pgm_we_o   : out   std_logic; -- PROM WE
       -- External device interrupts (external UART, Timer, etc.)
-      dev_irq_i  : in    std_logic_vector(2 downto 0):="000";
+      dev_irq_i  : in    std_logic_vector(2 downto 0);
       dev_ack_o  : out   std_logic_vector(2 downto 0);
       -- External PIN interrupts
-      pin_irq_i  : in    std_logic_vector(1 downto 0):="00";
+      pin_irq_i  : in    std_logic_vector(1 downto 0);
       -- WISHBONE
       wb_adr_o   : out   std_logic_vector(7 downto 0); -- I/O Address
       wb_dat_o   : out   std_logic_vector(7 downto 0); -- Data Bus output
-      wb_dat_i   : in    std_logic_vector(7 downto 0):="00000000"; -- Data Bus input
+      wb_dat_i   : in    std_logic_vector(7 downto 0); -- Data Bus input
       wb_stb_o   : out   std_logic;  -- Strobe output
       wb_we_o    : out   std_logic;  -- Write Enable output
-      wb_ack_i   : in    std_logic:='1'; -- Acknowledge input
+      wb_ack_i   : in    std_logic;  -- Acknowledge input
       -- SPI
       spi_ena_o  : out   std_logic;
       sclk_o     : out   std_logic;
-      miso_i     : in    std_logic:='0';
+      miso_i     : in    std_logic;
       mosi_o     : out   std_logic;
       -- Debug
-      dbg_o      : out debug_o_t;  -- Debug status
-      dbg_i      : in  debug_i_t:=DEBUG_I_INIT); -- Debug control
+      dbg_stop_i      : in  std_logic; -- Stop request
+      dbg_pc_o        : out unsigned(15 downto 0);
+      dbg_inst_o      : out std_logic_vector(15 downto 0);
+      dbg_inst2_o     : out std_logic_vector(15 downto 0);
+      dbg_exec_o      : out std_logic;
+      dbg_is32_o      : out std_logic;
+      dbg_stopped_o   : out std_logic; -- CPU is stopped
+      -- Debug used for Test_ALU_1_TB
+      dbg_rf_fake_i   : in  std_logic;
+      dbg_rr_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_i   : in  std_logic_vector(7 downto 0);
+      dbg_rd_data_o   : out std_logic_vector(7 downto 0);
+      dbg_rd_we_o     : out std_logic;
+      dbg_cyc_last_o  : out std_logic); -- Last cycle in the instruction
 end entity ATtX5;
 
 architecture Struct of ATtX5 is
@@ -134,8 +143,6 @@ architecture Struct of ATtX5 is
    signal irq_lines : std_logic_vector(IRQ_NUM-1 downto 0):=(others => '0');
    signal irq_acks  : std_logic_vector(irq_lines'range);
    -- RAM
-   signal ram_din_r : std_logic_vector(7 downto 0);
-   signal ram_clk   : std_logic; -- RAM clock
    signal ram_datao : std_logic_vector(7 downto 0);
    signal ram_adr   : std_logic_vector(RAM_ADDR_W downto 0);
    signal ram_adr_2 : std_logic_vector(RAM_ADDR_W-1 downto 0);
@@ -152,7 +159,7 @@ architecture Struct of ATtX5 is
 begin
    AVRCoreInst : entity avr.AVRCore
       generic map(
-         RF_ENA_RST => RF_ENA_RST, ID_W => ID_W, IRQ_LINES => IRQ_NUM,
+         ID_W => ID_W, IRQ_LINES => IRQ_NUM,
          ENA_RAMPZ => false, SP_W => ADR_W, RAM_ADR_W => ADR_W, ENA_AVR3 => false,
          ENA_DEBUG => ENA_DEBUG, ENA_SPM => ENA_SPM, RESET_JUMP => RESET_JUMP,
          ENA_AVR4 => false, ENA_AVR25 => ENA_AVR25)
@@ -176,7 +183,20 @@ begin
          --Watchdog
          wdr_o => open,
          -- Debug
-         dbg_o => dbg_o, dbg_i => dbg_i);
+         dbg_stop_i     => dbg_stop_i,
+         dbg_pc_o       => dbg_pc_o,
+         dbg_inst_o     => dbg_inst_o,
+         dbg_inst2_o    => dbg_inst2_o,
+         dbg_exec_o     => dbg_exec_o,
+         dbg_is32_o     => dbg_is32_o,
+         dbg_stopped_o  => dbg_stopped_o,
+         -- Debug used for Test_ALU_1_TB
+         dbg_rf_fake_i  => dbg_rf_fake_i,
+         dbg_rr_data_i  => dbg_rr_data_i,
+         dbg_rd_data_i  => dbg_rd_data_i,
+         dbg_rd_data_o  => dbg_rd_data_o,
+         dbg_rd_we_o    => dbg_rd_we_o,
+         dbg_cyc_last_o => dbg_cyc_last_o);
    cpu_ena <= wb_go_on and ena_i;
    cpu_rst <= rst_i;
 
@@ -213,7 +233,7 @@ begin
    -- PortB --
    -----------
    portb_impl :
-   if ENA_PORTB generate
+   if ENA_PORTB='1' generate
       portb_comp : IOPort
          generic map(NUMBER => 1, BITS => PORTB_SIZE)
          port map(
@@ -233,7 +253,7 @@ begin
    end generate portb_impl;
    
    portb_not_impl:
-   if not ENA_PORTB generate
+   if ENA_PORTB='0' generate
       portb_o <= (others => 'Z');
    end generate portb_not_impl;
    -- ************************************************
@@ -242,7 +262,7 @@ begin
    -- PortC -- -- For experimental use
    -----------
    portc_impl :
-   if ENA_PORTC generate
+   if ENA_PORTC='1' generate
       portc_comp : IOPort
          generic map(NUMBER => 2, BITS => PORTC_SIZE)
          port map(
@@ -262,7 +282,7 @@ begin
    end generate portc_impl;
    
    portc_not_impl:
-   if not ENA_PORTC generate
+   if ENA_PORTC='0' generate
       portc_o <= (others => 'Z');
    end generate portc_not_impl;
    -- ************************************************
@@ -271,7 +291,7 @@ begin
    -- PortD -- -- For experimental use
    -----------
    portd_impl :
-   if ENA_PORTD generate
+   if ENA_PORTD='1' generate
       portd_comp : IOPort
          generic map(NUMBER => 3, BITS => PORTD_SIZE)
          port map(
@@ -291,7 +311,7 @@ begin
    end generate portd_impl;
    
    portd_not_impl:
-   if not ENA_PORTD generate
+   if ENA_PORTD='0' generate
       portd_o <= (others => 'Z');
    end generate portd_not_impl;
    -- ************************************************
@@ -300,7 +320,7 @@ begin
    -- WISHBONE bridge --
    ---------------------
    WB_Impl:
-   if ENA_WB generate
+   if ENA_WB='1' generate
       wb_bridge : WBControl
          port map(
             -- AVR Control
@@ -349,7 +369,7 @@ begin
    -- SPI --
    ---------
    SPI_Impl:
-   if ENA_SPI generate
+   if ENA_SPI='1' generate
       SPI_Device : SPI_Dev
          port map(
             -- AVR Control
@@ -375,7 +395,7 @@ begin
    end generate SPI_Impl;
 
    SPI_Not_Impl:
-   if not(ENA_SPI) generate
+   if ENA_SPI='0' generate
       spi_ena_o <= '0';
       sclk_o    <= '0';
       mosi_o    <= '0';

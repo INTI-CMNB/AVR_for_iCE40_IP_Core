@@ -98,15 +98,27 @@ architecture Behave of ATtX5_Tb is
    signal pc           : unsigned(15 downto 0); -- PROM address
    signal pcsv         : std_logic_vector(10 downto 0);
    signal inst         : std_logic_vector(15 downto 0); -- PROM data
-   signal dbg          : debug_o_t;
+   signal dbg_exec     : std_logic;
+   signal dbg_stopped  : std_logic;
+   signal dbg_is32     : std_logic;
+   signal dbg_pc       : unsigned(15 downto 0);
+   signal dbg_inst     : std_logic_vector(15 downto 0);
+   signal dbg_inst2    : std_logic_vector(15 downto 0);
 begin
    micro : entity avr.ATtX5
       generic map(
-         ENA_TC0 => false,   ENA_PORTB => false, ENA_WB    => true,
-         ENA_DEBUG => true)
+         ENA_PORTB => '0', ENA_WB => '1', ENA_DEBUG => '1')
       port map(
-         rst_i => reset, clk_i => clk, clk2x_i => clk,
-         pc_o => pc, inst_i => inst, dbg_o => dbg,
+         rst_i => reset, clk_i => clk, clk2x_i => clk, ena_i => '1',
+         pc_o => pc, inst_i => inst,
+         portb_i => (others => '0'), portc_i => (others => '0'),
+         portd_i => (others => '0'), dev_irq_i => (others => '0'), miso_i => '0',
+         pin_irq_i => (others => '0'),
+         dbg_exec_o => dbg_exec, dbg_stopped_o => dbg_stopped,
+         dbg_is32_o => dbg_is32, dbg_pc_o => dbg_pc,
+         dbg_inst_o => dbg_inst, dbg_inst2_o => dbg_inst2,
+         dbg_stop_i => '0', dbg_rf_fake_i => '0', dbg_rr_data_i => (others => '0'),
+         dbg_rd_data_i => (others => '0'),
          -- WISHBONE
          wb_adr_o => wb_adr, wb_dat_o => wb_dato, wb_dat_i => wb_dati,
          wb_stb_o => wb_stb, wb_we_o  => wb_we,   wb_ack_i => wb_ack);
@@ -146,7 +158,10 @@ begin
 
    the_tracer : entity work.Tracer
       port map(
-         clk_i => clk, rst_i => reset, dbg_i => dbg);
+         clk_i => clk, rst_i => reset,
+         dbg_exec_i => dbg_exec, dbg_stopped_i => dbg_stopped,
+         dbg_is32_i => dbg_is32, dbg_pc_i => dbg_pc,
+         dbg_inst_i => dbg_inst, dbg_inst2_i => dbg_inst2);
 
    the_clock : SimpleClock
       generic map(FREQUENCY => F_CLK, RESET_TM => 1.2)

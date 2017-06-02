@@ -121,8 +121,8 @@ architecture Simulator of ALU_TB is
    signal end_test : boolean:=false;
    signal reset    : std_logic:='1';
    --
-   signal dbgi     : debug_i_t:=DEBUG_I_INIT;
-   signal dbgo     : debug_o_t;
+   signal dbgo_rd_we    : std_logic;
+   signal dbgo_cyc_last : std_logic;
 begin
    do_clock:
    process
@@ -147,7 +147,7 @@ begin
    end process do_reset;
 
    micro : entity avr.CPU
-      generic map(ENA_DEBUG => true, SP_W => SP_W)
+      generic map(ENA_DEBUG => '1', SP_W => SP_W)
       port map(
          -- Clock and reset
          clk_i => clk, ena_i => '1', rst_i => reset,
@@ -173,12 +173,14 @@ begin
          sp_pop_o => open, sp_we_o => open,
          rampz_i => (others => '0'),
          -- Debug
-         dbg_i => dbgi, dbg_o => dbgo);
-   res     <= dbgo.rd_data;
-   res_rdy <= dbgo.rd_we or dbgo.cyc_last;
-   dbgi.rd_data <= rd;
-   dbgi.rr_data <= rr;
-   dbgi.rf_fake <= true;
+         dbg_stop_i => '0',
+         dbg_rd_data_i => rd,
+         dbg_rr_data_i => rr,
+         dbg_rf_fake_i => '1',
+         dbg_rd_data_o => res,
+         dbg_rd_we_o => dbgo_rd_we,
+         dbg_cyc_last_o => dbgo_cyc_last);
+   res_rdy <= dbgo_rd_we or dbgo_cyc_last;
 
    cur_sreg(0) <= ci;
    cur_sreg(1) <= zi;

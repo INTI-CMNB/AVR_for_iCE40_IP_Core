@@ -107,7 +107,13 @@ architecture Simulator of CPU_RL_Tb is
    signal loaded       : std_logic;
    signal end_test     : std_logic:='0';
 
-   signal dbg          : debug_o_t;
+   signal dbg_exec     : std_logic;
+   signal dbg_stopped  : std_logic;
+   signal dbg_is32     : std_logic;
+   signal dbg_pc       : unsigned(15 downto 0);
+   signal dbg_inst     : std_logic_vector(15 downto 0);
+   signal dbg_inst2    : std_logic_vector(15 downto 0);
+
    signal ena_trace    : std_logic;
 
    signal ram_we       : std_logic;
@@ -145,12 +151,18 @@ architecture Simulator of CPU_RL_Tb is
 
 begin
    micro : entity avr.ATtX5
-      generic map(PORTB_SIZE => 8, ENA_DEBUG => true, ENA_PORTD => true, ENA_SPM => true)
+      generic map(PORTB_SIZE => 8, ENA_DEBUG => '1', ENA_PORTD => '1', ENA_SPM => '1')
       port map(
-         rst_i => rst, clk_i => clk, clk2x_i => clk,
+         rst_i => rst, clk_i => clk, clk2x_i => clk, ena_i => '1',
          pc_o => pc, inst_i => inst, inst_o => inst_w, pgm_we_o => pgm_we,
-         pin_irq_i(0) => portd(7), pin_irq_i(1) => '0',
-         portb_o => portb, dbg_o => dbg, portd_o => portd,
+         pin_irq_i(0) => portd(7), pin_irq_i(1) => '0', portb_i => (others => '0'),
+         portb_o => portb, portd_o => portd, portc_i => (others => '0'),
+         portd_i => (others => '0'), dev_irq_i => (others => '0'), miso_i => '0',
+         dbg_exec_o => dbg_exec, dbg_stopped_o => dbg_stopped,
+         dbg_is32_o => dbg_is32, dbg_pc_o => dbg_pc,
+         dbg_inst_o => dbg_inst, dbg_inst2_o => dbg_inst2,
+         dbg_stop_i => '0', dbg_rf_fake_i => '0', dbg_rr_data_i => (others => '0'),
+         dbg_rd_data_i => (others => '0'),
          -- WISHBONE
          wb_adr_o => wb_adr, wb_dat_o => wb_dato, wb_dat_i => wb_dati,
          wb_stb_o => wb_stb, wb_we_o  => wb_we,   wb_ack_i => wb_ack);
@@ -183,7 +195,10 @@ begin
 
    the_tracer : entity work.Tracer
       port map(
-         clk_i => clk, rst_i => rst, dbg_i => dbg, ena_i => ena_trace);
+         clk_i => clk, rst_i => rst, ena_i => ena_trace,
+         dbg_exec_i => dbg_exec, dbg_stopped_i => dbg_stopped,
+         dbg_is32_i => dbg_is32, dbg_pc_i => dbg_pc,
+         dbg_inst_i => dbg_inst, dbg_inst2_i => dbg_inst2);
    ena_trace <= '1' when SHOW_TRACE else '0';
 
    -- Iteration counter
