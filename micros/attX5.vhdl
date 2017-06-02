@@ -65,7 +65,7 @@ entity ATtX5 is
       ENA_PORTC     : boolean:=false;  -- Include PortC (experimental)
       ENA_PORTD     : boolean:=false;  -- Include PortD (experimental)
       ENA_WB        : boolean:=true;   -- Include the WISHBONE bridge
-      ENA_IRQ_CTRL  : boolean:=false;  -- Include the ext. irq. control
+      ENA_IRQ_CTRL  : std_logic:='0';  -- Include the ext. irq. control
       ENA_DEBUG     : boolean:=false;  -- Enable debug interface
       ENA_SPM       : boolean:=false;  -- Implement the SPM instruction (AVR4)
       ENA_AVR25     : boolean:=true;   -- Enable AVR 2.5 instructions

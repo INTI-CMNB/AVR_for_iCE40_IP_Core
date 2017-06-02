@@ -10,7 +10,7 @@ core/core.vhdl
 Work/dev_pkg.vhdl
 devices/portx.v
 devices/wb_ctrl.v
-devices/irq.vhdl
+devices/irq.v
 devices/spi.v
 Work/mem_pkg.vhdl
 memory/dm_s.vhdl

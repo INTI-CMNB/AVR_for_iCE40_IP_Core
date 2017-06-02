@@ -62,7 +62,7 @@ use avr.Constants.all;
 
 entity IRQCtrl is
    generic(
-      ENABLE : boolean:=true);
+      ENABLE : std_logic:='1');
    port(
       -- AVR Control
       clk_i      : in   std_logic;
@@ -97,9 +97,9 @@ architecture RTL of IRQCtrl is
    signal gifr_sel  : std_logic;
    signal mcucr_sel : std_logic;
 begin
-   gicr_sel  <= '1' when adr_i=GICR_ADDRESS  and ENABLE else '0';
-   gifr_sel  <= '1' when adr_i=GIFR_ADDRESS  and ENABLE else '0';
-   mcucr_sel <= '1' when adr_i=MCUCR_ADDRESS and ENABLE else '0';
+   gicr_sel  <= '1' when adr_i=GICR_ADDRESS  and ENABLE='1' else '0';
+   gifr_sel  <= '1' when adr_i=GIFR_ADDRESS  and ENABLE='1' else '0';
+   mcucr_sel <= '1' when adr_i=MCUCR_ADDRESS and ENABLE='1' else '0';
 
    selected_o <= (gicr_sel or gifr_sel or mcucr_sel) and (re_i or we_i);
 
@@ -177,13 +177,13 @@ begin
       end if; -- rising_edge(clk_i)
    end process do_regs;
 
-   ext_irq_o(0) <= pin_irq_i(0)                   when not(ENABLE) else
+   ext_irq_o(0) <= pin_irq_i(0)                   when ENABLE='0'  else
                    not(pin_irq_i(0)) and gic_r(0) when isc0_r="00" else
                    gif_r(0)          and gic_r(0);
-   ext_irq_o(1) <= pin_irq_i(1)                   when not(ENABLE) else
+   ext_irq_o(1) <= pin_irq_i(1)                   when ENABLE='0'  else
                    not(pin_irq_i(1)) and gic_r(1) when isc1_r="00" else
                    gif_r(1)          and gic_r(1);
-   ext_irq_o(4 downto 2) <= dev_irq_i and gic_r(4 downto 2) when ENABLE else
+   ext_irq_o(4 downto 2) <= dev_irq_i and gic_r(4 downto 2) when ENABLE='1' else
                             dev_irq_i;
 
    data_o <= (gic_r&"000"           and gicr_sel) or
