@@ -48,7 +48,7 @@ use IEEE.numeric_std.all;
 
 entity SinglePortRAM is
    generic(
-      FALL_EDGE    : boolean:=false;
+      FALL_EDGE    : std_logic:='0';
       WORD_SIZE    : integer:=8;   -- Word Size
       ADDR_W       : integer:=12); -- Address Width
    port(
@@ -66,7 +66,7 @@ architecture Xilinx of SinglePortRAM is
 begin
 
    use_rising_edge:
-   if not FALL_EDGE generate
+   if FALL_EDGE='0' generate
      do_ram:
      process (clk_i)
      begin
@@ -80,7 +80,7 @@ begin
    end generate use_rising_edge;
 
    use_falling_edge:
-   if FALL_EDGE generate
+   if FALL_EDGE='1' generate
      do_ram:
      process (clk_i)
      begin

@@ -50,7 +50,7 @@ use avr.Constants.all;
 package Memory is
    component SinglePortRAM is
       generic(
-         FALL_EDGE    : boolean:=false;
+         FALL_EDGE    : std_logic:='0';
          WORD_SIZE    : integer:=8;   -- Word Size
          ADDR_W       : integer:=12); -- Address Width
       port(
