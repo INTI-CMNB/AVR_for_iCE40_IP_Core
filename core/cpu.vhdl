@@ -62,8 +62,8 @@ entity CPU is
    generic(
       IRQ_ID_W   : positive:=2;     -- Width of the ID
       ENA_AVR25  : std_logic:='0';  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
-      ENA_AVR3   : boolean:=false;  -- Enable AVR3 instructions
-      ENA_AVR4   : boolean:=false;  -- Enable AVR4 instructions
+      ENA_AVR3   : std_logic:='0';  -- Enable AVR3 instructions
+      ENA_AVR4   : std_logic:='0';  -- Enable AVR4 instructions
       ENA_SPM    : std_logic:='0';  -- AVR4 Store Program Memory
       SP_W       : integer range 8 to 16:=8; -- SP register width
       RAM_ADR_W  : integer range 8 to 16:=8; -- RAM address width
@@ -495,7 +495,7 @@ begin
    -- Mux for LPM, we don't change PC, just use Z
    pc_o <= pc when (cyc_2_lpm_r or cyc_3_spm_r)='0' else reg_z_b16&rd16_read(15 downto 1); -- LPM
    -- rampz_i(0) for ELPM, 0 for LPM
-   reg_z_b16 <= rampz_i(0) and idc.elpm_r when ENA_AVR3 else '0';
+   reg_z_b16 <= rampz_i(0) and idc.elpm_r when ENA_AVR3='1' else '0';
    -- SPM's inst_o
    inst_o_implemented:
    if ENA_SPM='1' generate
@@ -875,7 +875,7 @@ begin
    -- Address high xxIW reg
    do_adr_iw1 <= cyc_3_xxiw_r or cyc_4_xxiw_r;    -- ADIW/SBIW Rd,k (3/4 R/W Rd+1)
    -- Address R0
-   lpm_r0     <= '1' when not(ENA_AVR25='1' or ENA_AVR4) or -- No Rd or
+   lpm_r0     <= '1' when not(ENA_AVR25='1' or ENA_AVR4='1') or -- No Rd or
                           inst_cur(2)='0' else '0';     -- Simple version
    do_adr_r0  <= (cyc_3_lpm_r and lpm_r0) or -- LPM (3 Write R0)
                  cyc_2_spm_next; -- SPM (1 Read R1:R0)
@@ -905,7 +905,7 @@ begin
    -------------------
    -- Rd 16 bits WE --
    -------------------
-   lpm_inc <= '1' when inst_cur(0)='1' and (ENA_AVR25='1' or ENA_AVR4) else '0';
+   lpm_inc <= '1' when inst_cur(0)='1' and (ENA_AVR25='1' or ENA_AVR4='1') else '0';
    rd16_we <= (cyc_2_ld_r and do_upd_pointer) or -- LD -R/R+
                cyc_3_st_r or                     -- ST -R/R+
                cyc_2_movw_r or                   -- MOVW

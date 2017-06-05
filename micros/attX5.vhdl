@@ -157,12 +157,12 @@ architecture Struct of ATtX5 is
    -- Watchdog
    signal cpu_rst   : std_logic;
 begin
-   AVRCoreInst : entity avr.AVRCore
+   AVRCoreInst : AVRCore
       generic map(
          ID_W => ID_W, IRQ_LINES => IRQ_NUM,
-         ENA_RAMPZ => false, SP_W => ADR_W, RAM_ADR_W => ADR_W, ENA_AVR3 => false,
+         ENA_RAMPZ => '0', SP_W => ADR_W, RAM_ADR_W => ADR_W, ENA_AVR3 => '0',
          ENA_DEBUG => ENA_DEBUG, ENA_SPM => ENA_SPM, RESET_JUMP => RESET_JUMP,
-         ENA_AVR4 => false, ENA_AVR25 => ENA_AVR25)
+         ENA_AVR4 => '0', ENA_AVR25 => ENA_AVR25)
       port map(
          --Clock and reset
          clk_i => clk_i, ena_i => cpu_ena, rst_i => rst_i,

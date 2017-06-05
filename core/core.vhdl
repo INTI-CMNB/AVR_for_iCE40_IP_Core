@@ -54,11 +54,11 @@ entity AVRCore is
    generic(
       SP_W       : integer range 8 to 16:=16; -- Stack pointer size
       RAM_ADR_W  : integer range 8 to 16:=16; -- RAM address width
-      ENA_RAMPZ  : boolean:=false; -- RAMPZ enable
+      ENA_RAMPZ  : std_logic:='0'; -- RAMPZ enable
       ID_W       : positive:=5;    -- Width of the IRQ ID
       ENA_AVR25  : std_logic:='0'; -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
-      ENA_AVR3   : boolean:=true;  -- Enable AVR3 instructions
-      ENA_AVR4   : boolean:=false; -- Enable AVR4 instructions
+      ENA_AVR3   : std_logic:='1'; -- Enable AVR3 instructions
+      ENA_AVR4   : std_logic:='0'; -- Enable AVR4 instructions
       ENA_SPM    : std_logic:='0'; -- Enable SPM instructions
       ENA_DEBUG  : std_logic:='0'; -- Enable debug interface
       RESET_JUMP : natural:=0;     -- Address of the reset vector

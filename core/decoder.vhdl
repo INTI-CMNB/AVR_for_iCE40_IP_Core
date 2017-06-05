@@ -52,8 +52,8 @@ use avr.Types.all;
 entity Decoder is
    generic(
       ENA_AVR25 : std_logic:='0';  -- Enable AVR25 instructions (MOVW/LPM Rd,Z)
-      ENA_AVR3  : boolean:=false;  -- Enable AVR3 instructions
-      ENA_AVR4  : boolean:=false); -- Enable AVR4 instructions
+      ENA_AVR3  : std_logic:='0';  -- Enable AVR3 instructions
+      ENA_AVR4  : std_logic:='0'); -- Enable AVR4 instructions
    port(
       -- Instruction to decode
       inst_i   : in  std_logic_vector(15 downto 0);
@@ -104,7 +104,7 @@ begin
                          --inst_i="1001010111101000" or -- LPM image
                          --inst_i="1001010111111000" or -- ELPM image
                          (inst_i(15 downto 10)&inst_i(3 downto 1)="100100010" and
-                             (ENA_AVR4 or ENA_AVR25='1')) -- LPM Rd,Z[+]
+                             (ENA_AVR4='1' or ENA_AVR25='1')) -- LPM Rd,Z[+]
                          else '0';
    idc_o.spm  <= '1' when inst_i="1001010111101000" else '0'; -- SPM 0x95E8 AV4
    idc_o.elpm_r <= inst_r_i(4); -- Extended LPM
@@ -204,25 +204,25 @@ begin
    -- AVR3 instructions --
    -----------------------
    idc_o.call <= '1' when inst_i(15 downto 9)&inst_i(3 downto 1)="1001010111" and
-                          ENA_AVR3 else '0'; -- 1001010XXXXX111X
+                          ENA_AVR3='1' else '0'; -- 1001010XXXXX111X
    idc_o.jmp  <= '1' when inst_i(15 downto 9)&inst_i(3 downto 1)="1001010110"
-                          and ENA_AVR3 else '0'; -- 1001010XXXXX110X 0x94xC-0x95xD
+                          and ENA_AVR3='1' else '0'; -- 1001010XXXXX110X 0x94xC-0x95xD
    -----------------------
    -- AVR4 instructions --
    -----------------------
-   idc_o.mul    <= '1' when inst_i(15 downto 10)="100111" and ENA_AVR4 else '0';  -- 100111RDDDDDRRRR
-   idc_o.muls   <= '1' when inst_i(15 downto 8)="00000010" and ENA_AVR4 else '0'; -- 00000010DDDDRRRR
+   idc_o.mul    <= '1' when inst_i(15 downto 10)="100111" and ENA_AVR4='1' else '0';  -- 100111RDDDDDRRRR
+   idc_o.muls   <= '1' when inst_i(15 downto 8)="00000010" and ENA_AVR4='1' else '0'; -- 00000010DDDDRRRR
    idc_o.mulsu  <= '1' when inst_i(15 downto 7)="000000110" and inst_i(3)='0'
-                            and ENA_AVR4 else '0';                              -- 000000110DDD0RRR
+                            and ENA_AVR4='1' else '0';                              -- 000000110DDD0RRR
    idc_o.fmul   <= '1' when inst_i(15 downto 7)="000000110" and inst_i(3)='1'
-                            and ENA_AVR4 else '0';                              -- 000000110DDD1RRR
+                            and ENA_AVR4='1' else '0';                              -- 000000110DDD1RRR
    idc_o.fmuls  <= '1' when inst_i(15 downto 7)="000000111" and inst_i(3)='0'
-                            and ENA_AVR4 else '0';                              -- 000000111DDD0RRR
+                            and ENA_AVR4='1' else '0';                              -- 000000111DDD0RRR
    idc_o.fmulsu <= '1' when inst_i(15 downto 7)="000000111" and inst_i(3)='1'
-                            and ENA_AVR4 else '0';                              -- 000000111DDD1RRR
+                            and ENA_AVR4='1' else '0';                              -- 000000111DDD1RRR
    -- AVR4 and AVR25(2.5)
    idc_o.movw   <= '1' when inst_i(15 downto 8)="00000001" and
-                            (ENA_AVR4 or ENA_AVR25='1') else '0'; -- 00000001DDDDRRRR
+                            (ENA_AVR4='1' or ENA_AVR25='1') else '0'; -- 00000001DDDDRRRR
    -- LPM Rd,Z decoding is in LPM decoding
    -- Most invalid opcodes are decoded as NOP
 end architecture RTL; -- Entity: Decoder

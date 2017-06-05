@@ -53,7 +53,7 @@ use avr.Constants.all;
 entity IORegFile is
    generic(
       SP_W       : integer range 8 to 16:=16;  -- Stack pointer size
-      ENA_RAMPZ  : boolean:=false); -- RAMPZ enable
+      ENA_RAMPZ  : std_logic:='0'); -- RAMPZ enable
    port(
       --Clock and reset
       clk_i     : in  std_logic;
@@ -114,7 +114,7 @@ begin
                   spl_r <= unsigned(data_i);
                elsif adr_i=SPH_ADDRESS and SP_W>8 then
                   sp_r(SP_TOP downto 8) <= unsigned(data_i(DATA_TOP downto 0));
-               elsif adr_i=RAMPZ_ADDRESS and ENA_RAMPZ then
+               elsif adr_i=RAMPZ_ADDRESS and ENA_RAMPZ='1' then
                   rampz_r <= data_i(0);
                end if;
             else
@@ -167,7 +167,7 @@ begin
    data_o  <= spl    when adr_i=SPL_ADDRESS   and re_i='1' else
               sph    when adr_i=SPH_ADDRESS   and re_i='1' and SP_W>8 else
               sreg_r when adr_i=SREG_ADDRESS  and re_i='1' else
-              rampz  when adr_i=RAMPZ_ADDRESS and re_i='1' and ENA_RAMPZ else
+              rampz  when adr_i=RAMPZ_ADDRESS and re_i='1' and ENA_RAMPZ='1' else
               e_data_i;
 end architecture RTL; -- Entity: IORegFile
 

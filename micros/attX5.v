@@ -145,11 +145,10 @@ wire cpu_ena;
 wire cpu_rst;
 
 AVRCore
-   #(
-     .ID_W(ID_W), .IRQ_LINES(IRQ_NUM),
-     .ENA_RAMPZ(0), .SP_W(ADR_W), .RAM_ADR_W(ADR_W), .ENA_AVR3(0),
-     .ENA_DEBUG(ENA_DEBUG), .ENA_SPM(ENA_SPM), .RESET_JUMP(RESET_JUMP),
-     .ENA_AVR4(0), .ENA_AVR25(ENA_AVR25))
+   #(.SP_W(ADR_W), .RAM_ADR_W(ADR_W), .ENA_RAMPZ(0), .ID_W(ID_W),
+     .ENA_AVR25(ENA_AVR25), .ENA_AVR3(0), .ENA_AVR4(0), .ENA_SPM(ENA_SPM),
+     .ENA_DEBUG(ENA_DEBUG), .RESET_JUMP(RESET_JUMP), .IRQ_LINES(IRQ_NUM))
+   AVRCoreInst
    (
      //Clock and reset
      .clk_i(clk_i), .ena_i(cpu_ena), .rst_i(rst_i),
