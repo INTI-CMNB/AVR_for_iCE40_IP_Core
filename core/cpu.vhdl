@@ -57,6 +57,7 @@ use IEEE.numeric_std.all;
 library avr;
 use avr.Constants.all;
 use avr.Types.all;
+use avr.Internal.all;
 
 entity CPU is
    generic(
@@ -811,7 +812,7 @@ begin
    -- Register File
    ----------------------------------------------------------------------------
    ----------------------------------------------------------------------------
-   RegFile : entity avr.RegisterFile
+   RegFile : RegisterFile
       port map(
          clk_i => clk_i,
          rd_adr_i => rd_adr, rd_i => rd_write, rd_o => rd_read_aux,

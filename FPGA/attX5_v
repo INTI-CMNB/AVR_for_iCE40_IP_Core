@@ -2,7 +2,7 @@
 avr
 Work/avr_pkg.vhdl
 core/io_reg_file.v
-core/reg_file.vhdl
+core/reg_file.v
 core/decoder.vhdl
 core/alu.vhdl
 core/cpu.vhdl
