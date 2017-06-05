@@ -1,7 +1,7 @@
 # xil_tools group 1
 avr
 Work/avr_pkg.vhdl
-core/io_reg_file.vhdl
+core/io_reg_file.v
 core/reg_file.vhdl
 core/decoder.vhdl
 core/alu.vhdl
