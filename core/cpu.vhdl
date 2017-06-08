@@ -85,12 +85,12 @@ entity CPU is
       io_adr_o        : out unsigned(5 downto 0);
       io_re_o         : out std_logic;
       io_we_o         : out std_logic;
-      io_data_i       : in  std_logic_vector(7 downto 0):=x"00";
+      io_data_i       : in  std_logic_vector(7 downto 0);
       -- Data memory control
       ram_adr_o       : out std_logic_vector(RAM_ADR_W-1 downto 0);
       ram_re_o        : out std_logic;
       ram_we_o        : out std_logic;
-      ram_data_i      : in  std_logic_vector(7 downto 0):=x"00";
+      ram_data_i      : in  std_logic_vector(7 downto 0);
       -- Shared between I/O and RAM
       data_o          : out std_logic_vector(7 downto 0);
       -- I/O register file interface
@@ -160,20 +160,15 @@ architecture RTL of CPU is
    -- Multicycle FSM
    signal cyc_1_r         : std_logic;
    signal cyc_1_next      : std_logic;
-   signal cyc_fetch_r     : std_logic; -- PC changed, wait for a fetch
    signal cyc_fetch_next  : std_logic; -- PC changed, wait for a fetch
-   alias  cyc_2_rjmp_r    : std_logic is cyc_fetch_r; -- RJMP k (Fetch next instruction)
    signal cyc_2_rjmp_next : std_logic; -- RJMP
    signal cyc_2_rcall_r   : std_logic; -- RCALL k (PUSH PC High)
    signal cyc_2_rcall_next: std_logic; -- RCALL
-   alias  cyc_3_xcall_r   : std_logic is cyc_fetch_r; -- RCALL/ICALL/IRQ (Fetch next instruction)
    signal cyc_2_icall_r   : std_logic; -- ICALL (PUSH PC High)
    signal cyc_2_icall_next: std_logic; -- ICALL
    signal cyc_2_ijmp_r    : std_logic; -- IJMP (Write PC)
    signal cyc_2_ijmp_next : std_logic; -- IJMP
-   alias  cyc_3_ijmp_r    : std_logic is cyc_fetch_r; -- IJMP (Fetch next instruction)
    signal cyc_1_brbx      : std_logic; -- BRBC/BRBS k
-   alias  cyc_2_brbx_r    : std_logic is cyc_fetch_r; -- BRBC/BRBS k (2 Fetch next instruction)
    signal cyc_2_brbx_next : std_logic; -- BRBC/BRBS k
    signal cyc_2_ret_r     : std_logic; -- RET/RETI (2 Read PCL)
    signal cyc_2_ret_next  : std_logic; -- RET/RETI
@@ -195,7 +190,6 @@ architecture RTL of CPU is
    signal cyc_2_sbrx_next : std_logic; -- SBRC/SBRS Rr,b
    signal cyc_3_skip_r    : std_logic; -- SBIS/SBIC A,b/CPSE (3 Skip 1 word)
    signal cyc_3_skip_next : std_logic; -- SBIS/SBIC A,b/CPSE
-   alias  cyc_4_skip_r    : std_logic is cyc_fetch_r; -- SBIS/SBIC A,b/CPSE (4 Skip 2 words, fetch)
    signal cyc_4_skip_next : std_logic; -- SBIS/SBIC A,b/CPSE
    signal cyc_2_sts_r     : std_logic; -- STS k,Rr (Write to full address space)
    signal cyc_2_sts_next  : std_logic; -- STS k,Rr
@@ -288,13 +282,11 @@ architecture RTL of CPU is
    -- I/O address sources
    signal io_adr_imm1     : std_logic; -- Immediate 1 (IN/OUT)
    signal io_adr_imm2     : std_logic; -- Immediate Bit manipulation cyc 1
-   signal io_adr_b2       : std_logic; -- Immediate Bit manipulation cyc 2
    signal io_adr_mem      : std_logic; -- From RAM
    -- Data outputs sources
    signal data_from_alu   : std_logic; -- From ALU
    signal data_from_pcl   : std_logic; -- From PC Low
    signal data_from_pch   : std_logic; -- From PC High
-   signal data_from_rr    : std_logic; -- From Rr
    -- Some actions
    signal do_push         : std_logic; -- Use SP as RAM adr, store a value, SP--
    signal do_pop          : std_logic; -- Use SP+1 as RAM adr, load a value, SP++
@@ -312,8 +304,6 @@ architecture RTL of CPU is
    alias  cyc_3_ldd_r     : std_logic is cyc_3_ld_r;
    alias  cyc_3_ldd_next  : std_logic is cyc_3_ld_next;
    alias  cyc_2_pop_r     : std_logic is cyc_3_ld_r;
-   -- Do a fetch (we changed PC in previous cycle)
-   alias  cyc_4_lpm_r     : std_logic is cyc_fetch_r;
    -- Registers file
    -- Main 8 bits port R/W (Rd)
    signal rd_adr          : unsigned(4 downto 0);
@@ -334,7 +324,6 @@ architecture RTL of CPU is
    signal full_adr_is_reg : std_logic;
    signal full_adr_is_ram : std_logic;
    signal full_adr_is_io  : std_logic;
-   signal full_adr_is_reg_r : std_logic;
    signal full_adr_is_ram_r : std_logic;
    signal full_adr_is_io_r  : std_logic;
    -- Pointer offset (-X; X+q; X)
@@ -343,24 +332,19 @@ architecture RTL of CPU is
    -- Stack pointer offset
    signal fadr_sp_off       : unsigned(15 downto 0);
    signal sp16              : unsigned(15 downto 0);
-   --alias  xyz_ram_pointer   : unsigned(RAM_ADR_W-1 downto 0) is rd16_read(RAM_ADR_W-1 downto 0);
    -- SREG  I T H S V N Z C
-   alias  sreg_i_r    : std_logic is sreg_i(7); -- Interrupt
    signal sreg_if     : std_logic;
    signal sreg_i_next : std_logic; -- I flag in the next clock cycle
-   alias  sreg_t_r    : std_logic is sreg_i(6); -- Test
    signal sreg_t      : std_logic;
-   alias  sreg_h_r    : std_logic is sreg_i(5); -- Half Carry
-   alias  sreg_s_r    : std_logic is sreg_i(4); -- Sign
    signal sreg_s      : std_logic;
-   alias  sreg_v_r    : std_logic is sreg_i(3); -- oVerflow
    signal sreg_v      : std_logic;
-   alias  sreg_n_r    : std_logic is sreg_i(2); -- Negative
    signal sreg_n      : std_logic;
-   alias  sreg_z_r    : std_logic is sreg_i(1); -- Zero
    signal sreg_z      : std_logic;
-   alias  sreg_c_r    : std_logic is sreg_i(0); -- Carry
    signal sreg_c      : std_logic;
+   alias  sreg_i_r    : std_logic is sreg_i(7); -- Interrupt
+   alias  sreg_t_r    : std_logic is sreg_i(6); -- Test
+   alias  sreg_z_r    : std_logic is sreg_i(1); -- Zero
+   alias  sreg_c_r    : std_logic is sreg_i(0); -- Carry
    signal sreg_out    : std_logic_vector(7 downto 0); -- sreg_o read-out
    signal sreg_we_out : std_logic_vector(7 downto 0); -- sreg_we_o read-out
    signal sreg_we_out1: std_logic_vector(7 downto 0); -- sreg_we_o read-out
@@ -370,6 +354,7 @@ architecture RTL of CPU is
    signal do_alu_flag     : std_logic;
    -------------------------------------
    -- ALU
+   -------------------------------------
    signal cin     : unsigned(0 downto 0); -- Adder/Sub Carry In
    -- Adder
    signal add_lo  : unsigned(4 downto 0); -- Adder Low Nibble
@@ -391,7 +376,6 @@ architecture RTL of CPU is
    signal op_and   : std_logic;
    signal op_or    : std_logic;
    signal op_xor   : std_logic;
-   signal op_nop   : std_logic;
    signal op_shf   : std_logic;
    signal op_swp   : std_logic;
    -- ALU Result
@@ -430,7 +414,6 @@ architecture RTL of CPU is
    signal cyc_1_irq_r     : std_logic; -- IRQ (1 Push PC Low)
    alias  cyc_2_irq_next  : std_logic is cyc_1_irq_r;
    signal cyc_2_irq_r     : std_logic; -- IRQ (2 Push PC High, ACK, Clear SREG(I), Load PC)
-   alias  cyc_3_irq_r     : std_logic is cyc_fetch_r; -- IRQ (3 Fetch)
    -- ELPM's address bit 15 (reg_z_b16&Z)
    signal reg_z_b16 : std_logic;
    signal lpm_r0    : std_logic;
@@ -557,8 +540,6 @@ begin
    begin
       if rising_edge(clk_i) then
          if rst_i='1' then
-            -- We start execution doing a fetch
-            cyc_fetch_r     <= '1';
             -- First cycle for any instruction
             cyc_1_r         <= '0';
             cyc_2_ijmp_r    <= '0';
@@ -611,7 +592,6 @@ begin
             cyc_2_irq_r     <= '0';
          elsif enabled='1' then
             cyc_1_r         <= cyc_1_next;
-            cyc_fetch_r     <= cyc_fetch_next;
             cyc_2_ijmp_r    <= cyc_2_ijmp_next;
             cyc_2_rcall_r   <= cyc_2_rcall_next;
             cyc_2_icall_r   <= cyc_2_icall_next;
@@ -796,11 +776,9 @@ begin
    begin
       if rising_edge(clk_i) then
          if rst_i='1' then
-            full_adr_is_reg_r <= '0';
             full_adr_is_ram_r <= '0';
             full_adr_is_io_r  <= '0';
          else
-            full_adr_is_reg_r <= full_adr_is_reg;
             full_adr_is_ram_r <= full_adr_is_ram;
             full_adr_is_io_r  <= full_adr_is_io;
          end if;
@@ -1279,6 +1257,17 @@ begin
             end if;
          end if;
       end process do_dbg_pc;
+   end generate do_debug_stuff;
+
+   do_debug_stuff:
+   if ENA_DEBUG='0' generate
+      dbg_pc_o      <= (others => '0');
+      dbg_inst2_o   <= (others => '0');
+      dbg_exec_o    <= '0';
+      dbg_is32_o    <= '0';
+      dbg_stopped_o <= '0';
+      dbg_rd_data_o <= (others => '0');
+      dbg_rd_we_o   <= '0';
    end generate do_debug_stuff;
 
    stopped <= '1' when ENA_DEBUG='1' and dbg_stop_i='1' else '0';

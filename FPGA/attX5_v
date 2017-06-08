@@ -3,9 +3,8 @@ avr
 Work/avr_pkg.vhdl
 core/io_reg_file.v
 core/reg_file.v
-core/decoder.vhdl
 core/alu.v
-core/cpu.vhdl
+core/cpu.v
 core/core.v
 Work/dev_pkg.vhdl
 devices/portx.v

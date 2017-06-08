@@ -129,4 +129,10 @@
 // Watchdog
 `define WDTCR_ADDRESS  6'h21
 
+`define LD_X 2'b11
+`define LD_Y 2'b10
+`define LD_Z 2'b00
+`define LD_POST_INC 2'b01
+`define LD_PRE_DEC  2'b10
+
 
