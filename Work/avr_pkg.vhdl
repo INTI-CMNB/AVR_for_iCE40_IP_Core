@@ -162,13 +162,13 @@ package Internal is
          rd_adr_i : in  unsigned(4 downto 0);
          rd_i     : in  std_logic_vector( 7 downto 0);
          rd_o     : out std_logic_vector( 7 downto 0);
-         -- Man 16 bits port
-         rd16_we_i: in  std_logic:='0';
-         rd16_i   : in  unsigned(15 downto 0):=x"0000";
+         -- Main 16 bits port
+         rd16_we_i: in  std_logic;
+         rd16_i   : in  unsigned(15 downto 0);
          rd16_o   : out unsigned(15 downto 0);
          -- Secondary 8 bits read port
-         rr_adr_i : in  unsigned(4 downto 0):="00000";
-         rr_o    : out std_logic_vector(7 downto 0));
+         rr_adr_i : in  unsigned(4 downto 0);
+         rr_o     : out std_logic_vector(7 downto 0));
    end component RegisterFile;
 
    component IORegFile is
