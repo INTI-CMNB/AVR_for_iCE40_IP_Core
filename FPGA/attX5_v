@@ -1,18 +1,14 @@
 # xil_tools group 1
 avr
-Work/avr_pkg.vhdl
 core/io_reg_file.v
 core/reg_file.v
 core/alu.v
 core/cpu.v
 core/core.v
-Work/dev_pkg.vhdl
 devices/portx.v
 devices/wb_ctrl.v
 devices/irq.v
 devices/spi.v
-Work/mem_pkg.vhdl
 memory/dm_s.v
-Work/micros_pkg.vhdl
-micros/attX5.vhdl
+micros/attX5.v
 
