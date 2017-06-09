@@ -50,6 +50,8 @@
 //   decodificar el espacio de I/O, pero quizás no valga la pena. Evaluar.
 //
 
+`include "avr_constants.v"
+
 module CPU
   #(
     parameter IRQ_ID_W=2,  // Width of the ID

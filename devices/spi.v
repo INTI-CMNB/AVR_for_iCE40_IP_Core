@@ -131,7 +131,7 @@ SPI_Master #(.DATA_W(8)) SPI_Core
     // Mode options
     .cpol_i(`cpol), .dord_i(`dord), .cpha_i(`cpha),
     // SPI
-    .sclk_o(sclk_o), .miso_i(miso_i), .mosi_en_o(open),
+    .sclk_o(sclk_o), .miso_i(miso_i), .mosi_en_o(),
     .mosi_o(mosi_o));
 
 always @(posedge clk_i)

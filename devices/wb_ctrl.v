@@ -119,7 +119,7 @@ begin : do_addr_r
      addr_r <= 0;
   else if (addr_sel && we_i)
      addr_r <= data_i;
-end process do_addr_r;
+end // do_addr_r
 
 endmodule // WBControl
 
