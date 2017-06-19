@@ -75,6 +75,9 @@ package Micros is
          portb_o    : out   std_logic_vector(PORTB_SIZE-1 downto 0);
          portc_o    : out   std_logic_vector(PORTC_SIZE-1 downto 0);
          portd_o    : out   std_logic_vector(PORTD_SIZE-1 downto 0);
+         portb_oe_o : out   std_logic_vector(PORTB_SIZE-1 downto 0);
+         portc_oe_o : out   std_logic_vector(PORTC_SIZE-1 downto 0);
+         portd_oe_o : out   std_logic_vector(PORTD_SIZE-1 downto 0);
          -- Program Memory
          pc_o       : out   unsigned(15 downto 0); -- PROM address
          inst_i     : in    std_logic_vector(15 downto 0); -- PROM data

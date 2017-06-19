@@ -234,10 +234,6 @@ begin
           load <= '0';
           Reset(rst);
     
-          -- First event: when we set it as output
-          wait until time_out='1' or portb'event;
-          assert time_out='0' report "Time out in test "&integer'image(test_num) severity failure;
-          -- Second event: a real value
           wait until time_out='1' or portb'event;
           assert time_out='0' report "Time out in test "&integer'image(test_num) severity failure;
     

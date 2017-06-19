@@ -66,7 +66,8 @@ entity IOPort is
       selected_o : out  std_logic;
       -- External connection
       port_i     : in   std_logic_vector(BITS-1 downto 0);
-      port_o     : out  std_logic_vector(BITS-1 downto 0));
+      port_o     : out  std_logic_vector(BITS-1 downto 0);
+      port_oe_o  : out  std_logic_vector(BITS-1 downto 0));
 end entity IOPort;
 
 architecture RTL of IOPort is
@@ -127,22 +128,22 @@ begin
    -- Bidirectional ports
    is_in_out:
    if ENA_OUT='1' and ENA_IN='1' generate
-      do_hi_z:
-      for i in port_o'range generate
-          port_o(i) <= data_r(i) when ddr_r(i)='1' else 'Z';
-      end generate do_hi_z;
+      port_oe_o <= ddr_r;
+      port_o    <= data_r;
    end generate is_in_out;
 
    -- Output ports
    is_out:
    if ENA_OUT='1' and ENA_IN='0' generate
-      port_o <= data_r;
+      port_oe_o <= (others => '1');
+      port_o    <= data_r;
    end generate is_out;
 
    -- Input ports
    is_in:
    if ENA_OUT='0' and ENA_IN='1' generate
-      port_o <= (others => 'Z');
+      port_oe_o <= (others => '0');
+      port_o    <= (others => '0');
    end generate is_in;
 end architecture RTL; -- Entity: IOPort
 

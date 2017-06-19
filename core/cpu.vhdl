@@ -1259,7 +1259,7 @@ begin
       end process do_dbg_pc;
    end generate do_debug_stuff;
 
-   do_debug_stuff:
+   do_dummy_debug_stuff:
    if ENA_DEBUG='0' generate
       dbg_pc_o      <= (others => '0');
       dbg_inst2_o   <= (others => '0');
@@ -1268,7 +1268,7 @@ begin
       dbg_stopped_o <= '0';
       dbg_rd_data_o <= (others => '0');
       dbg_rd_we_o   <= '0';
-   end generate do_debug_stuff;
+   end generate do_dummy_debug_stuff;
 
    stopped <= '1' when ENA_DEBUG='1' and dbg_stop_i='1' else '0';
    enabled <= ena_i and not(stopped);

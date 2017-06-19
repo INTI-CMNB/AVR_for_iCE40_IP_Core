@@ -61,7 +61,8 @@ module IOPort
     output       selected_o,
     // External connection
     input  [BITS-1:0] port_i,
-    output [BITS-1:0] port_o);
+    output [BITS-1:0] port_o,
+    output [BITS-1:0] port_oe_o);
 
 `include "../core/avr_ports.v"
 
@@ -119,22 +120,22 @@ generate
 // Bidirectional ports
 if (ENA_OUT && ENA_IN)
    begin : is_in_out
-   for (i=0; i<BITS; i=i+1)
-     begin : do_hi_z
-     assign port_o[i]=ddr_r[i] ? data_r[i] : 1'bZ;
-     end
+   assign port_oe_o=ddr_r;
+   assign port_o=data_r;
    end
 else
 // Output ports
 if (ENA_OUT && !ENA_IN)
    begin : is_out
+   assign port_oe_o={BITS{1'b1}};
    assign port_o=data_r;
    end
 else
 // Input ports
 if (!ENA_OUT && ENA_IN)
    begin : is_in
-   assign port_o={BITS{1'bZ}};
+   assign port_oe_o={BITS{1'b0}};
+   assign port_o={BITS{1'b0}};
    end
 endgenerate
 

@@ -86,6 +86,9 @@ entity ATtX5 is
       portb_o    : out   std_logic_vector(PORTB_SIZE-1 downto 0);
       portc_o    : out   std_logic_vector(PORTC_SIZE-1 downto 0);
       portd_o    : out   std_logic_vector(PORTD_SIZE-1 downto 0);
+      portb_oe_o : out   std_logic_vector(PORTB_SIZE-1 downto 0);
+      portc_oe_o : out   std_logic_vector(PORTC_SIZE-1 downto 0);
+      portd_oe_o : out   std_logic_vector(PORTD_SIZE-1 downto 0);
       -- Program Memory
       pc_o       : out   unsigned(15 downto 0); -- PROM address
       inst_i     : in    std_logic_vector(15 downto 0); -- PROM data
@@ -249,12 +252,14 @@ begin
             selected_o => io_out_en(0),
             -- External connection
             port_i     => portb_i,
+            port_oe_o  => portb_oe_o,
             port_o     => portb_o);
    end generate portb_impl;
    
    portb_not_impl:
    if ENA_PORTB='0' generate
-      portb_o <= (others => 'Z');
+      portb_o <= (others => '0');
+      portb_oe_o <= (others => '0');
    end generate portb_not_impl;
    -- ************************************************
 
@@ -278,12 +283,14 @@ begin
             selected_o => io_out_en(1),
             -- External connection
             port_i     => portc_i,
+            port_oe_o  => portc_oe_o,
             port_o     => portc_o);
    end generate portc_impl;
    
    portc_not_impl:
    if ENA_PORTC='0' generate
-      portc_o <= (others => 'Z');
+      portc_oe_o <= (others => '0');
+      portc_o <= (others => '0');
    end generate portc_not_impl;
    -- ************************************************
 
@@ -307,12 +314,14 @@ begin
             selected_o => io_out_en(4),
             -- External connection
             port_i     => portd_i,
+            port_oe_o  => portd_oe_o,
             port_o     => portd_o);
    end generate portd_impl;
    
    portd_not_impl:
    if ENA_PORTD='0' generate
-      portd_o <= (others => 'Z');
+      portd_o <= (others => '0');
+      portd_oe_o <= (others => '0');
    end generate portd_not_impl;
    -- ************************************************
 

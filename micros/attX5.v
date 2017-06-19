@@ -75,6 +75,9 @@ module ATtX5
     output [PORTB_SIZE-1:0] portb_o,
     output [PORTC_SIZE-1:0] portc_o,
     output [PORTD_SIZE-1:0] portd_o,
+    output [PORTB_SIZE-1:0] portb_oe_o,
+    output [PORTC_SIZE-1:0] portc_oe_o,
+    output [PORTD_SIZE-1:0] portd_oe_o,
     // Program Memory
     output [15:0] pc_o,     // PROM address
     input  [15:0] inst_i,   // PROM data
@@ -233,11 +236,13 @@ if (ENA_PORTB)
        .selected_o(io_out_en[0]),
        // External connection
        .port_i(portb_i),
+       .port_oe_o(portb_oe_o),
        .port_o(portb_o));
    end
 else
    begin : portb_not_impl
-   assign portb_o={PORTB_SIZE{1'bZ}};
+   assign portb_o={PORTB_SIZE{1'b0}};
+   assign portb_oe_o={PORTB_SIZE{1'b0}};
    end
 endgenerate
 // ************************************************
@@ -261,11 +266,13 @@ if (ENA_PORTC)
        .selected_o(io_out_en[1]),
        // External connection
        .port_i(portc_i),
+       .port_oe_o(portc_oe_o),
        .port_o(portc_o));
    end
 else
    begin : portc_not_impl
-   assign portc_o={PORTC_SIZE{1'bZ}};
+   assign portc_o={PORTC_SIZE{1'b0}};
+   assign portc_oe_o={PORTC_SIZE{1'b0}};
    end
 endgenerate
 // ************************************************
@@ -289,11 +296,13 @@ if (ENA_PORTD)
        .selected_o(io_out_en[4]),
        // External connection
        .port_i(portd_i),
+       .port_oe_o(portd_oe_o),
        .port_o(portd_o));
    end
 else
    begin : portd_not_impl
-   assign portd_o={PORTD_SIZE{1'bZ}};
+   assign portd_o={PORTD_SIZE{1'b0}};
+   assign portd_oe_o={PORTD_SIZE{1'b0}};
    end
 endgenerate
 // ************************************************

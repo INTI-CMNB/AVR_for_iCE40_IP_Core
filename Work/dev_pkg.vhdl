@@ -67,7 +67,8 @@ package Devices is
          selected_o : out  std_logic;
          -- External connection
          port_i     : in   std_logic_vector(BITS-1 downto 0);
-         port_o     : out  std_logic_vector(BITS-1 downto 0));
+         port_o     : out  std_logic_vector(BITS-1 downto 0);
+         port_oe_o  : out  std_logic_vector(BITS-1 downto 0));
    end component IOPort;
 
    component WBControl is

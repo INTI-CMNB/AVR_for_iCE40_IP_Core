@@ -90,6 +90,8 @@ roms_avr2:
 $(OBJDIR)/avr-disa: avr-disa.cc
 	$(CXX) $(CXXFLAGS) -o $@ $< `$(CPPFIO)/cppfio_config --dlibs`
 
+do_test: do_test_cpu_rl do_test_attX5 do_test_alu
+
 do_test_cpu_rl: lib all test_cpu_rl
 
 test_cpu_rl: $(OBJDIR)/cpu_rl_tb roms_avr2 $(OBJDIR)/avr-disa
